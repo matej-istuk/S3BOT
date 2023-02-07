@@ -1,8 +1,7 @@
 package hr.mi.apps;
 
-import hr.mi.s3bot.chess.model.BoardState;
+import hr.mi.chess.model.BoardState;
 
-import java.awt.*;
 import java.util.Arrays;
 
 public class ChessModelAdapter {
@@ -10,6 +9,10 @@ public class ChessModelAdapter {
 
     public ChessModelAdapter() {
         this.boardState = new BoardState();
+    }
+
+    public ChessModelAdapter(String fen) {
+        this.boardState = new BoardState(fen);
     }
 
     /**
