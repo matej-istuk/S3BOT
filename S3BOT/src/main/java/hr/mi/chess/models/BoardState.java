@@ -1,7 +1,9 @@
 package hr.mi.chess.models;
 
-import hr.mi.chess.util.ChessConstants;
+import hr.mi.chess.util.constants.ChessBoardConstants;
 import hr.mi.chess.util.ChessTranslator;
+import hr.mi.chess.util.constants.ChessPieceConstants;
+
 import java.util.Arrays;
 
 public class BoardState {
@@ -19,7 +21,7 @@ public class BoardState {
     private int enPassantTarget;
 
     public BoardState() {
-        this(ChessConstants.STARTING_POSITION_FEN);
+        this(ChessBoardConstants.STARTING_POSITION_FEN);
     }
 
     public BoardState(String fen){
@@ -82,7 +84,7 @@ public class BoardState {
                     offset += c - '0';
                 }
                 else {
-                    bitboards[ChessConstants.PIECE_INT_MAPPING.get(c)] = bitboards[ChessConstants.PIECE_INT_MAPPING.get(c)] | (1L << (index + offset));
+                    bitboards[ChessPieceConstants.PIECE_INT_MAPPING.get(c)] = bitboards[ChessPieceConstants.PIECE_INT_MAPPING.get(c)] | (1L << (index + offset));
                     offset++;
                 }
             }
