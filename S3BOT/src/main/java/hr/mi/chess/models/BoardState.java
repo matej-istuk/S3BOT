@@ -17,7 +17,7 @@ public class BoardState {
     private boolean blackQueenSideCastling;
     private int fullMoves;
     private int halfMoveClock;
-    private boolean isWhiteActive;
+    private boolean activeColour;
     private int enPassantTarget;
 
     public BoardState() {
@@ -57,8 +57,8 @@ public class BoardState {
         return halfMoveClock;
     }
 
-    public boolean isWhiteActive() {
-        return isWhiteActive;
+    public boolean getActiveColour() {
+        return activeColour;
     }
 
     public int getEnPassantTarget() {
@@ -92,7 +92,7 @@ public class BoardState {
         }
 
         //Active Color
-        isWhiteActive = fenArr[1].equals("w");
+        activeColour = fenArr[1].equals("w");
 
         //Castling Rights
         whiteKingSideCastling = fenArr[2].contains("K");
@@ -332,7 +332,7 @@ public class BoardState {
         }
 
         //increase move counter, if black just moved
-        if (!isWhiteActive){
+        if (!activeColour){
             fullMoves++;
         }
 
@@ -347,7 +347,7 @@ public class BoardState {
         switch (move.flags()) {
             //double pawn push
             case 1 -> {
-                if (isWhiteActive)
+                if (activeColour)
                     enPassantTarget = move.to() - 8;
                 else
                     enPassantTarget = move.to() + 8;
@@ -355,7 +355,7 @@ public class BoardState {
             //king castle
             case 2 -> {
                 //have to move the rooks to their new positions
-                if (isWhiteActive) {
+                if (activeColour) {
                     //White king-side rook on the bitboard index 1 7th digit
                     bitboards[1] = bitboards[1] & ~(1L << 7);
                     bitboards[1] = bitboards[1] | (1L << 5);
@@ -367,7 +367,7 @@ public class BoardState {
             }
             //queen castle
             case 3 -> {
-                if (isWhiteActive) {
+                if (activeColour) {
                     //White queen-side rook on the bitboard index 1 0th digit
                     bitboards[1] = bitboards[1] & ~(1L);
                     bitboards[1] = bitboards[1] | (1L << 3);
@@ -379,7 +379,7 @@ public class BoardState {
             }
             //ep-capture
             case 5 -> {
-                if (isWhiteActive) {
+                if (activeColour) {
                     //Black pawns are on bitboard index 6
                     bitboards[6] = bitboards[6] & ~(1L << (move.to() - 8));
                 } else {
@@ -391,7 +391,7 @@ public class BoardState {
             default -> {
                 //the move is a capture if the third flag is active
                 if ((move.flags() & 4) != 0){
-                    if (isWhiteActive) {
+                    if (activeColour) {
                         for (int i = 6; i < 11; i++) {
                             bitboards[i] = bitboards[i] & ~(1L << move.to());
                         }
@@ -404,7 +404,7 @@ public class BoardState {
 
                 //the move is a promotion if the fourth flag is active
                 if ((move.flags() & 8) != 0){
-                    if (isWhiteActive) {
+                    if (activeColour) {
                         //White pawns are on bitboard index 0
                         bitboards[0] = bitboards[0] & ~(1L << move.to());
                         //possible because the same ordering is used in the bitboards and flags
@@ -421,7 +421,7 @@ public class BoardState {
             }
         }
         //change active player
-        isWhiteActive = !isWhiteActive;
+        activeColour = !activeColour;
     }
 
     @Override
@@ -437,7 +437,7 @@ public class BoardState {
         if (blackQueenSideCastling != that.blackQueenSideCastling) return false;
         if (fullMoves != that.fullMoves) return false;
         if (halfMoveClock != that.halfMoveClock) return false;
-        if (isWhiteActive != that.isWhiteActive) return false;
+        if (activeColour != that.activeColour) return false;
         if (enPassantTarget != that.enPassantTarget) return false;
         return Arrays.equals(bitboards, that.bitboards);
     }
@@ -451,7 +451,7 @@ public class BoardState {
         result = 31 * result + (blackQueenSideCastling ? 1 : 0);
         result = 31 * result + fullMoves;
         result = 31 * result + halfMoveClock;
-        result = 31 * result + (isWhiteActive ? 1 : 0);
+        result = 31 * result + (activeColour ? 1 : 0);
         result = 31 * result + enPassantTarget;
         return result;
     }

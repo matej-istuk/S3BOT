@@ -4,5 +4,5 @@ import hr.mi.chess.models.BoardState;
 
 @FunctionalInterface
 public interface BlockerCalcFunc {
-    long calculateBlockers(BoardState boardState);
+    long calculateBlockers(long[] bitboards);
 }

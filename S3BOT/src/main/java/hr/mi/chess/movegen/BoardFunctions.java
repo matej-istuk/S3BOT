@@ -1,30 +1,35 @@
 package hr.mi.chess.movegen;
 
-import hr.mi.chess.models.BoardState;
+import hr.mi.chess.models.ChessPiece;
+import hr.mi.chess.util.constants.ChessConstants;
+import hr.mi.chess.util.constants.ChessPieceConstants;
 
 public class BoardFunctions {
-    public static long calculateActiveColourOccupied(BoardState boardState) {
-        int offset = boardState.isWhiteActive() ? 0 : 6;
-        return calculateOccupiedByIndexRange(boardState, offset, 6 + offset);
+    private static final int[] offsets = {0, 1, 2, 3, 4, 5};
+    private static final int[] blackOffsets = {6, 7, 8, 9, 10, 11};
+
+    public static ChessPiece getPieceByBitboard(long[] bitboards, long checkerBitboard){
+        for (ChessPiece chessPiece: ChessPiece.values()){
+            if ((bitboards[chessPiece.getKey()] & checkerBitboard) != 0){
+                return chessPiece;
+            }
+        }
+
+        return null;
     }
 
-    public static long calculateNotActiveColourOccupied(BoardState boardState) {
-        int offset = boardState.isWhiteActive() ? 6 : 0;
-        return calculateOccupiedByIndexRange(boardState, offset, 6 + offset);
+    public static long calculateOccupiedByColour(long[] bitboards, boolean colour) {
+        return calculateOccupiedByIndexes(bitboards, offsets, colour == ChessConstants.WHITE ? 0 : 6);
     }
 
-    public static long calculateWhiteOccupied(BoardState boardState){
-        return calculateOccupiedByIndexRange(boardState, 0, 6);
+    public static long calculateOccupiedByIndexes(long[] bitboards, int[] pieceIndexes, boolean pieceColour) {
+        return calculateOccupiedByIndexes(bitboards, pieceIndexes, pieceColour == ChessConstants.WHITE ? 0 : 6);
     }
 
-    public static long calculateBlackOccupied(BoardState boardState){
-        return calculateOccupiedByIndexRange(boardState, 6, 12);
-    }
-
-    private static long calculateOccupiedByIndexRange(BoardState boardState, int from, int to){
+    private static long calculateOccupiedByIndexes(long[] bitboards, int[] bitboardIndexes, int offset){
         long occupied = 0L;
-        for (int i = from; i < to; i++){
-            occupied |= boardState.getBitboards()[i];
+        for (int i: bitboardIndexes){
+            occupied |= bitboards[i + offset];
         }
         return occupied;
     }

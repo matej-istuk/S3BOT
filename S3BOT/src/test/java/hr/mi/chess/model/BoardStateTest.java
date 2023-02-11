@@ -2,7 +2,6 @@ package hr.mi.chess.model;
 
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
-import hr.mi.chess.util.constants.ChessBoardConstants;
 import hr.mi.chess.util.constants.ChessPieceConstants;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +24,7 @@ class BoardStateTest {
 
         assertEquals(0, boardState.getHalfMoveClock());
 
-        assertTrue(boardState.isWhiteActive());
+        assertTrue(boardState.getActiveColour());
 
         assertEquals(-1, boardState.getEnPassantTarget());
     }
@@ -46,7 +45,7 @@ class BoardStateTest {
 
         assertEquals(0, boardState.getHalfMoveClock());
 
-        assertFalse(boardState.isWhiteActive());
+        assertFalse(boardState.getActiveColour());
 
         assertEquals(17, boardState.getEnPassantTarget());
     }
@@ -67,7 +66,7 @@ class BoardStateTest {
 
         assertEquals(22, boardState.getHalfMoveClock());
 
-        assertTrue(boardState.isWhiteActive());
+        assertTrue(boardState.getActiveColour());
 
         assertEquals(-1, boardState.getEnPassantTarget());
     }

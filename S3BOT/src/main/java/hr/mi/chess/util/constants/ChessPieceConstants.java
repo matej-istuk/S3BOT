@@ -36,7 +36,20 @@ public class ChessPieceConstants {
     public static final List<ChessPiece> WHITE_PIECES = List.of(ChessPiece.WHITE_PAWN, ChessPiece.WHITE_ROOK, ChessPiece.WHITE_KNIGHT, ChessPiece.WHITE_BISHOP, ChessPiece.WHITE_QUEEN, ChessPiece.WHITE_KING);
     public static final List<ChessPiece> BLACK_PIECES = List.of(ChessPiece.BLACK_PAWN, ChessPiece.BLACK_ROOK, ChessPiece.BLACK_KNIGHT, ChessPiece.BLACK_BISHOP, ChessPiece.BLACK_QUEEN, ChessPiece.BLACK_KING);
 
-    public static final List<ChessPiece> ATTACKERS_ON_WHITE_KING = List.of(ChessPiece.BLACK_PAWN, ChessPiece.BLACK_ROOK, ChessPiece.BLACK_KNIGHT, ChessPiece.BLACK_BISHOP, ChessPiece.BLACK_QUEEN);
-    public static final List<ChessPiece> ATTACKERS_ON_BLACK_KING = List.of(ChessPiece.WHITE_PAWN, ChessPiece.WHITE_ROOK, ChessPiece.WHITE_KNIGHT, ChessPiece.WHITE_BISHOP, ChessPiece.WHITE_QUEEN);
+    public static final int[] NON_SLIDER_ATTACKERS = {0, 2};
 
+    public static final int[] COMPASS_ROSE = {7, 8, 9, 1, -7, -8, -9, -1};
+    public static final int[] DIAGONAL_SLIDING_ATTACKERS = {3, 4};
+    public static final int[] STRAIGHT_SLIDING_ATTACKERS = {1, 4};
+
+    public static final Map<Integer, int[]> POSSIBLE_ATTACKERS_BY_OFFSET = Map.ofEntries(
+            Map.entry(7, DIAGONAL_SLIDING_ATTACKERS),
+            Map.entry(8, STRAIGHT_SLIDING_ATTACKERS),
+            Map.entry(9, DIAGONAL_SLIDING_ATTACKERS),
+            Map.entry(1, STRAIGHT_SLIDING_ATTACKERS),
+            Map.entry(-7, DIAGONAL_SLIDING_ATTACKERS),
+            Map.entry(-8, STRAIGHT_SLIDING_ATTACKERS),
+            Map.entry(-9, DIAGONAL_SLIDING_ATTACKERS),
+            Map.entry(-1, STRAIGHT_SLIDING_ATTACKERS)
+        );
 }
