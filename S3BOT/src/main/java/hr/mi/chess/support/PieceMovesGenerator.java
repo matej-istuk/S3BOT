@@ -6,14 +6,14 @@ import java.util.*;
 
 public class PieceMovesGenerator {
     public static void main(String[] args) {
-        generateKnightMoves();
+        generateKingMoves();
     }
 
     private static void generateKnightMoves(){
         long[] moves = new long[64];
         for (int i = 0; i < 64; i++){
             Set<Integer> legalJumpSet = new HashSet<>();
-            Arrays.stream(ChessPiece.WHITE_KNIGHT.getMoveOffsets()).forEach(legalJumpSet::add);
+            Arrays.stream(ChessPiece.WHITE_KNIGHT.getPushOffsets()).forEach(legalJumpSet::add);
 
             //bottom row
             if (i <= 7){
@@ -60,6 +60,50 @@ public class PieceMovesGenerator {
             }
             long bitmask = 0L;
             for (int offset: legalJumpSet){
+                bitmask |= (1L << (offset + i));
+            }
+            moves[i] = bitmask;
+        }
+        Arrays.stream(moves).forEach(o -> System.out.printf("%dL, ", o));
+    }
+
+    private static void generateKingMoves(){
+        long[] moves = new long[64];
+        for (int i = 0; i < 64; i++){
+            Set<Integer> legalMoveSet = new HashSet<>();
+            Arrays.stream(ChessPiece.WHITE_KING.getPushOffsets()).forEach(legalMoveSet::add);
+
+            //bottom row
+            if (i <= 7){
+                legalMoveSet.remove(-7);
+                legalMoveSet.remove(-8);
+                legalMoveSet.remove(-9);
+
+            }
+
+            //top row
+            if (i >= 56){
+                legalMoveSet.remove(7);
+                legalMoveSet.remove(8);
+                legalMoveSet.remove(9);
+            }
+
+            //leftmost column
+            if (i % 8 == 0){
+                legalMoveSet.remove(7);
+                legalMoveSet.remove(-1);
+                legalMoveSet.remove(-9);
+            }
+
+            //rightmost column
+            if (i % 8 == 7){
+                legalMoveSet.remove(9);
+                legalMoveSet.remove(1);
+                legalMoveSet.remove(-7);
+            }
+
+            long bitmask = 0L;
+            for (int offset: legalMoveSet){
                 bitmask |= (1L << (offset + i));
             }
             moves[i] = bitmask;

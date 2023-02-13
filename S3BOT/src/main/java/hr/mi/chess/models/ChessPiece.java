@@ -1,37 +1,53 @@
 package hr.mi.chess.models;
 
+import hr.mi.chess.util.constants.ChessConstants;
+
 public enum ChessPiece {
-    WHITE_PAWN(0, new int[] {8}, new int[] {7, 9}, false),
-    WHITE_ROOK(1, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, true),
-    WHITE_KNIGHT(2, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, false),
-    WHITE_BISHOP(3, new int[] {7, 9, -7, -9}, new int[] {7, 9, -7, -9}, true),
-    WHITE_QUEEN(4, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, true),
-    WHITE_KING(5, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, false),
-    BLACK_PAWN(6, new int[] {-8}, new int[] {-7, -9}, false),
-    BLACK_ROOK(7, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, true),
-    BLACK_KNIGHT(8, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, false),
-    BLACK_BISHOP(9, new int[] {7, 9, -7, -9}, new int[] {7, 9, -7, -9}, true),
-    BLACK_QUEEN(10, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, true),
-    BLACK_KING(11, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, false);
+    WHITE_PAWN(0, ChessConstants.WHITE, new int[] {8}, new int[] {7, 9}, new int[] {7, 8, 9}, false, true),
+    WHITE_ROOK(1, ChessConstants.WHITE, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, true, false),
+    WHITE_KNIGHT(2, ChessConstants.WHITE, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, false, false),
+    WHITE_BISHOP(3, ChessConstants.WHITE, new int[] {7, 9, -7, -9}, new int[] {7, 9, -7, -9}, new int[] {7, 9, -7, -9}, true, false),
+    WHITE_QUEEN(4, ChessConstants.WHITE, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, true, false),
+    WHITE_KING(5, ChessConstants.WHITE, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, false, false),
+    BLACK_PAWN(6, ChessConstants.BLACK, new int[] {-8}, new int[] {-7, -9}, new int[] {-7, -8, -9}, false, true),
+    BLACK_ROOK(7, ChessConstants.BLACK, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, true, false),
+    BLACK_KNIGHT(8, ChessConstants.BLACK, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, new int[] {17, 15, 10, 6, -17, -15, -10, -6}, false, false),
+    BLACK_BISHOP(9, ChessConstants.BLACK, new int[] {7, 9, -7, -9}, new int[] {7, 9, -7, -9}, new int[] {7, 9, -7, -9}, true, false),
+    BLACK_QUEEN(10, ChessConstants.BLACK, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, true, false),
+    BLACK_KING(11, ChessConstants.BLACK, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, new int[] {8, 1, -8, -1, 7, 9, -7, -9}, false, false);
 
     private final int key;
-    private final int[] attackOffsets;
+    private final boolean colour;
+    private final int[] pushOffsets;
+    private final int[] captureOffsets;
     private final int[] moveOffsets;
     private final boolean sliding;
+    private final boolean pawn;
 
-    ChessPiece(int key, int[] moveOffsets, int[] attackOffsets, boolean sliding) {
+    ChessPiece(int key, boolean colour, int[] pushOffsets, int[] captureOffsets, int[] moveOffsets, boolean sliding, boolean pawn) {
         this.key = key;
+        this.colour = colour;
+        this.pushOffsets = pushOffsets;
+        this.captureOffsets = captureOffsets;
         this.moveOffsets = moveOffsets;
-        this.attackOffsets = attackOffsets;
         this.sliding = sliding;
+        this.pawn = pawn;
     }
 
     public int getKey() {
         return key;
     }
 
-    public int[] getAttackOffsets() {
-        return attackOffsets;
+    public boolean getColour() {
+        return colour;
+    }
+
+    public int[] getCaptureOffsets() {
+        return captureOffsets;
+    }
+
+    public int[] getPushOffsets() {
+        return pushOffsets;
     }
 
     public int[] getMoveOffsets() {
@@ -40,5 +56,9 @@ public enum ChessPiece {
 
     public boolean isSliding() {
         return sliding;
+    }
+
+    public boolean isPawn() {
+        return pawn;
     }
 }

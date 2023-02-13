@@ -2,9 +2,11 @@ package hr.mi.chess.models;
 
 import hr.mi.chess.util.constants.ChessBoardConstants;
 import hr.mi.chess.util.ChessTranslator;
+import hr.mi.chess.util.constants.ChessConstants;
 import hr.mi.chess.util.constants.ChessPieceConstants;
 
 import java.util.Arrays;
+import java.util.Stack;
 
 public class BoardState {
     /**
@@ -19,6 +21,7 @@ public class BoardState {
     private int halfMoveClock;
     private boolean activeColour;
     private int enPassantTarget;
+    private Stack<Move> previousMoves;
 
     public BoardState() {
         this(ChessBoardConstants.STARTING_POSITION_FEN);
@@ -26,6 +29,7 @@ public class BoardState {
 
     public BoardState(String fen){
         loadFen(fen);
+        previousMoves = new Stack<>();
     }
 
 
@@ -61,6 +65,9 @@ public class BoardState {
         return activeColour;
     }
 
+    public boolean getPassiveColour() {
+        return !activeColour;
+    }
     public int getEnPassantTarget() {
         return enPassantTarget;
     }
@@ -316,7 +323,7 @@ public class BoardState {
      * <td style="text-align:center;"> queen-promo capture
      * </td></tr></tbody>
      */
-    public void move(Move move){
+    public void makeMove(Move move){
         //resolve the move
         bitboards[move.piece()] = bitboards[move.piece()] & ~(1L << move.from());
         bitboards[move.piece()] = bitboards[move.piece()] | (1L << move.to());
@@ -332,7 +339,7 @@ public class BoardState {
         }
 
         //increase move counter, if black just moved
-        if (!activeColour){
+        if (activeColour == ChessConstants.BLACK){
             fullMoves++;
         }
 
@@ -387,7 +394,7 @@ public class BoardState {
                     bitboards[0] = bitboards[0] & ~(1L << (move.to() + 8));
                 }
             }
-            //the following cases share a lot of functionality, so they're bundled together
+            //the other cases share a lot of functionality, so they're bundled together
             default -> {
                 //the move is a capture if the third flag is active
                 if ((move.flags() & 4) != 0){
@@ -422,6 +429,14 @@ public class BoardState {
         }
         //change active player
         activeColour = !activeColour;
+
+        //push the move onto the stack
+        previousMoves.push(move);
+
+    }
+
+    public void unmakeLastMove(){
+
     }
 
     @Override

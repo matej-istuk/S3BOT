@@ -6,10 +6,12 @@ import hr.mi.chess.movegen.BoardFunctions;
 import hr.mi.chess.movegen.helpers.implementations.MoveOffsetGetters;
 import hr.mi.chess.movegen.helpers.interfaces.BlockerCalcFunc;
 import hr.mi.chess.movegen.helpers.interfaces.MoveOffsetGetter;
+import hr.mi.chess.util.constants.ChessBoardConstants;
 import hr.mi.chess.util.constants.ChessConstants;
 import hr.mi.chess.util.constants.ChessPieceConstants;
 
 import java.util.List;
+import java.util.function.LongUnaryOperator;
 
 public class MoveUtil {
 
@@ -46,23 +48,37 @@ public class MoveUtil {
     }
 
     public static long piecePushes(long[] bitboards, ChessPiece piece, long pieceBitboard){
-        boolean friendlyColour = piece.getKey() <= ChessPiece.WHITE_KING.getKey();
+        boolean friendlyColour = piece.getColour();
         return getMoves(bitboards, piece, pieceBitboard, o -> BoardFunctions.calculateOccupiedByColour(o, friendlyColour), o -> BoardFunctions.calculateOccupiedByColour(o, !friendlyColour), MoveOffsetGetters.PUSH_GETTER);
     }
 
     public static long pieceCaptures(long[] bitboards, ChessPiece piece, long pieceBitboard){
-        boolean friendlyColour = piece.getKey() <= ChessPiece.WHITE_KING.getKey();
+        boolean friendlyColour = piece.getColour();
         return getMoves(bitboards, piece, pieceBitboard, o -> BoardFunctions.calculateOccupiedByColour(o, friendlyColour), o -> BoardFunctions.calculateOccupiedByColour(o, !friendlyColour), MoveOffsetGetters.CAPTURE_GETTER);
     }
 
+    public static long pieceMoves(long[] bitboards, ChessPiece piece, long pieceBitboard){
+        if (piece.isPawn()){
+            return piecePushes(bitboards, piece, pieceBitboard) | pieceCaptures(bitboards, piece, pieceBitboard);
+        }
+        return piecePushes(bitboards, piece, pieceBitboard);
+    }
+
     public static long typePushes(long[] bitboards, ChessPiece piece){
-        boolean friendlyColour = piece.getKey() <= ChessPiece.WHITE_KING.getKey();
+        boolean friendlyColour = piece.getColour();
         return typePushes(bitboards, piece, o -> BoardFunctions.calculateOccupiedByColour(o, friendlyColour), o -> BoardFunctions.calculateOccupiedByColour(o, !friendlyColour));
     }
 
     public static long typeCaptures(long[] bitboards, ChessPiece piece){
-        boolean friendlyColour = piece.getKey() <= ChessPiece.WHITE_KING.getKey();
+        boolean friendlyColour = piece.getColour();
         return typeCaptures(bitboards, piece, o -> BoardFunctions.calculateOccupiedByColour(o, friendlyColour), o -> BoardFunctions.calculateOccupiedByColour(o, !friendlyColour));
+    }
+
+    public static long typeMoves(long[] bitboards, ChessPiece piece){
+        if (piece.isPawn()){
+            return typePushes(bitboards, piece) | typeCaptures(bitboards, piece);
+        }
+        return typePushes(bitboards, piece);
     }
 
     private static long typePushes(long[] bitboards, ChessPiece piece, BlockerCalcFunc hardBlockerCalcFunc, BlockerCalcFunc softBlockerCalcFunc){
@@ -79,8 +95,23 @@ public class MoveUtil {
         long hardBlockers = hardBlockerCalcFunc.calculateBlockers(bitboards);
         long softBlockers = softBlockerCalcFunc.calculateBlockers(bitboards);
 
-        for (int offset: moveOffsetGetter.getMoveOffset(piece)){
+        for (int offset : moveOffsetGetter.getMoveOffset(piece)) {
             result |= MoveCalc.generateMoveByOffset(offset, attackingPieces, hardBlockers, softBlockers, piece.isSliding());
+        }
+
+        //generate double push for pawns
+        if (piece.isPawn()){
+            long pawnStartingRowMask = piece.getColour() == ChessConstants.WHITE ? ChessBoardConstants.RANK_2 : ChessBoardConstants.RANK_7;
+            LongUnaryOperator shift = piece.getColour() == ChessConstants.WHITE ? o -> o << ChessBoardConstants.NORTH : o -> o >>> ChessBoardConstants.NORTH;
+            while (attackingPieces != 0){
+                long singleAttackingPiece = Long.lowestOneBit(attackingPieces);
+                attackingPieces &= ~singleAttackingPiece;
+
+                if ((singleAttackingPiece & pawnStartingRowMask) != 0 && (shift.applyAsLong(singleAttackingPiece) & result) != 0){
+                    result |= shift.applyAsLong(shift.applyAsLong(singleAttackingPiece));
+                    result &= ~hardBlockers;
+                }
+            }
         }
 
         return result;

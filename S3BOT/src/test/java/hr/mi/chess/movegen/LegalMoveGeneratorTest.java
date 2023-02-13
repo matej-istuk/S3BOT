@@ -67,7 +67,7 @@ class LegalMoveGeneratorTest {
 
     @Test
     void testPin1() {
-        BoardState boardState = new BoardState("5K2/8/5R2/5r2/8/8/8/8 w - - 0 1");
+        BoardState boardState = new BoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
     }
 }
