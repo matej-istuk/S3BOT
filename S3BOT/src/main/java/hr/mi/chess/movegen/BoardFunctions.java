@@ -7,6 +7,7 @@ import hr.mi.chess.util.constants.ChessPieceConstants;
 public class BoardFunctions {
     private static final int[] offsets = {0, 1, 2, 3, 4, 5};
     private static final int[] blackOffsets = {6, 7, 8, 9, 10, 11};
+    private static final int[] all = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
     public static ChessPiece getPieceByBitboard(long[] bitboards, long checkerBitboard){
         for (ChessPiece chessPiece: ChessPiece.values()){
@@ -20,6 +21,9 @@ public class BoardFunctions {
 
     public static long calculateOccupiedByColour(long[] bitboards, boolean colour) {
         return calculateOccupiedByIndexes(bitboards, offsets, colour == ChessConstants.WHITE ? 0 : 6);
+    }
+    public static long calculateOccupiedAll(long[] bitboards) {
+        return calculateOccupiedByIndexes(bitboards, all, 0);
     }
 
     public static long calculateOccupiedByIndexes(long[] bitboards, int[] pieceIndexes, boolean pieceColour) {

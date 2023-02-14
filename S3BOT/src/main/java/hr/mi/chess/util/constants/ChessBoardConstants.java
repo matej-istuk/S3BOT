@@ -100,4 +100,14 @@ public class ChessBoardConstants {
      */
     public static final long NO_MOVE_KNIGHT_WEST_NORTH = FILE_A | FILE_B | RANK_8;
     public static final String STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+    public static final long WHITE_KING_SIDE_CASTLING_MASK_BLOCKERS = 96L;
+    public static final long WHITE_QUEEN_SIDE_CASTLING_MASK_BLOCKERS = 14L;
+    public static final long BLACK_KING_SIDE_CASTLING_MASK_BLOCKERS = 6917529027641081856L;
+    public static final long BLACK_QUEEN_SIDE_CASTLING_MASK_BLOCKERS = 1008806316530991104L;
+    public static final long WHITE_KING_SIDE_CASTLING_MASK_ATTACKED_SQUARES = 96L;
+    public static final long WHITE_QUEEN_SIDE_CASTLING_MASK_ATTACKED_SQUARES = 12L;
+    public static final long BLACK_KING_SIDE_CASTLING_MASK_ATTACKED_SQUARES = 6917529027641081856L;
+    public static final long BLACK_QUEEN_SIDE_CASTLING_MASK_ATTACKED_SQUARES = 864691128455135232L;
+
 }

@@ -9,6 +9,11 @@ import java.util.Arrays;
 import java.util.Stack;
 
 public class BoardState {
+    private final static int PROMOTION_FLAG = 8;
+    private final static int CAPTURE_FLAG = 4;
+    private final static int SPECIAL_1_FLAG = 2;
+    private final static int SPECIAL_0_FLAG = 1;
+
     /**
      * Bitboards in the Little-Endian Rank-File Mapping
      */
@@ -324,14 +329,22 @@ public class BoardState {
      * </td></tr></tbody>
      */
     public void makeMove(Move move){
+        move.setOldWhiteKingSideCastling(whiteKingSideCastling);
+        move.setOldWhiteQueenSideCastling(whiteQueenSideCastling);
+        move.setOldBlackKingSideCastling(blackKingSideCastling);
+        move.setOldBlackQueenSideCastling(blackQueenSideCastling);
+        move.setOldFullMoves(fullMoves);
+        move.setOldHalfMoveClock(halfMoveClock);
+        move.setOldActiveColour(activeColour);
+        move.setOldEnPassantTarget(enPassantTarget);
         //resolve the move
-        bitboards[move.piece()] = bitboards[move.piece()] & ~(1L << move.from());
-        bitboards[move.piece()] = bitboards[move.piece()] | (1L << move.to());
+        bitboards[move.getPiece()] = bitboards[move.getPiece()] & ~(1L << move.getFrom());
+        bitboards[move.getPiece()] = bitboards[move.getPiece()] | (1L << move.getTo());
         //clears en passant targets
         enPassantTarget = -1;
 
         //deal with halfmoves, resets when a pawn is moved or a unit is captured
-        if ((move.flags() & 4) != 0 || move.piece() == 0 || move.piece() == 6){
+        if ((move.getFlags() & 4) != 0 || move.getPiece() == 0 || move.getPiece() == 6){
             halfMoveClock = 0;
         }
         else {
@@ -344,25 +357,25 @@ public class BoardState {
         }
 
         //update castling legality changes
-        whiteKingSideCastling = whiteKingSideCastling && move.from() != 4 && move.from() != 7 && move.to() != 7;
-        whiteQueenSideCastling = whiteQueenSideCastling && move.from() != 4 && move.from() != 0 && move.to() != 0;
-        blackKingSideCastling = blackKingSideCastling && move.from() != 60 && move.from() != 63 && move.to() != 63;
-        blackQueenSideCastling = blackQueenSideCastling && move.from() != 60 && move.from() != 56 && move.to() != 56;
+        whiteKingSideCastling = whiteKingSideCastling && move.getFrom() != 4 && move.getFrom() != 7 && move.getTo() != 7;
+        whiteQueenSideCastling = whiteQueenSideCastling && move.getFrom() != 4 && move.getFrom() != 0 && move.getTo() != 0;
+        blackKingSideCastling = blackKingSideCastling && move.getFrom() != 60 && move.getFrom() != 63 && move.getTo() != 63;
+        blackQueenSideCastling = blackQueenSideCastling && move.getFrom() != 60 && move.getFrom() != 56 && move.getTo() != 56;
 
         //handle the flags
         //due to their special nature, cases 1, 2, 3, and 5 are handled separately
-        switch (move.flags()) {
+        switch (move.getFlags()) {
             //double pawn push
             case 1 -> {
-                if (activeColour)
-                    enPassantTarget = move.to() - 8;
+                if (activeColour == ChessConstants.WHITE)
+                    enPassantTarget = move.getTo() - 8;
                 else
-                    enPassantTarget = move.to() + 8;
+                    enPassantTarget = move.getTo() + 8;
             }
             //king castle
             case 2 -> {
                 //have to move the rooks to their new positions
-                if (activeColour) {
+                if (activeColour == ChessConstants.WHITE) {
                     //White king-side rook on the bitboard index 1 7th digit
                     bitboards[1] = bitboards[1] & ~(1L << 7);
                     bitboards[1] = bitboards[1] | (1L << 5);
@@ -374,7 +387,7 @@ public class BoardState {
             }
             //queen castle
             case 3 -> {
-                if (activeColour) {
+                if (activeColour == ChessConstants.WHITE) {
                     //White queen-side rook on the bitboard index 1 0th digit
                     bitboards[1] = bitboards[1] & ~(1L);
                     bitboards[1] = bitboards[1] | (1L << 3);
@@ -386,43 +399,51 @@ public class BoardState {
             }
             //ep-capture
             case 5 -> {
-                if (activeColour) {
+                if (activeColour == ChessConstants.WHITE) {
                     //Black pawns are on bitboard index 6
-                    bitboards[6] = bitboards[6] & ~(1L << (move.to() - 8));
+                    bitboards[6] = bitboards[6] & ~(1L << (move.getTo() - 8));
+                    move.setCapturedPieceIndex(6);
                 } else {
                     //White pawns are on bitboard index 0
-                    bitboards[0] = bitboards[0] & ~(1L << (move.to() + 8));
+                    bitboards[0] = bitboards[0] & ~(1L << (move.getTo() + 8));
+                    move.setCapturedPieceIndex(0);
                 }
             }
             //the other cases share a lot of functionality, so they're bundled together
             default -> {
                 //the move is a capture if the third flag is active
-                if ((move.flags() & 4) != 0){
-                    if (activeColour) {
+                if ((move.getFlags() & CAPTURE_FLAG) != 0){
+                    if (activeColour == ChessConstants.WHITE) {
                         for (int i = 6; i < 11; i++) {
-                            bitboards[i] = bitboards[i] & ~(1L << move.to());
+                            if ((bitboards[i] & (1L << move.getTo())) != 0) {
+                                bitboards[i] = bitboards[i] & ~(1L << move.getTo());
+                                move.setCapturedPieceIndex(i);
+                            }
                         }
                     } else {
                         for (int i = 0; i < 5; i++) {
-                            bitboards[i] = bitboards[i] & ~(1L << move.to());
+                            if ((bitboards[i] & (1L << move.getTo())) != 0) {
+                                bitboards[i] = bitboards[i] & ~(1L << move.getTo());
+                                move.setCapturedPieceIndex(i);
+                            }
                         }
                     }
                 }
 
                 //the move is a promotion if the fourth flag is active
-                if ((move.flags() & 8) != 0){
-                    if (activeColour) {
+                if ((move.getFlags() & PROMOTION_FLAG) != 0){
+                    if (activeColour == ChessConstants.WHITE) {
                         //White pawns are on bitboard index 0
-                        bitboards[0] = bitboards[0] & ~(1L << move.to());
+                        bitboards[0] = bitboards[0] & ~(1L << move.getTo());
                         //possible because the same ordering is used in the bitboards and flags
-                        int promotedPiece = 1 + (move.flags() & 3);
-                        bitboards[promotedPiece] = bitboards[promotedPiece] | (1L << move.to());
+                        int promotedPiece = 1 + (move.getFlags() & 3);
+                        bitboards[promotedPiece] = bitboards[promotedPiece] | (1L << move.getTo());
                     } else {
                         //Black pawns are on bitboard index 6
-                        bitboards[6] = bitboards[6] & ~(1L << move.to());
+                        bitboards[6] = bitboards[6] & ~(1L << move.getTo());
                         //possible because the same ordering is used in the bitboards and flags
-                        int promotedPiece = 7 + (move.flags() & 3);
-                        bitboards[promotedPiece] = bitboards[promotedPiece] | (1L << move.to());
+                        int promotedPiece = 7 + (move.getFlags() & 3);
+                        bitboards[promotedPiece] = bitboards[promotedPiece] | (1L << move.getTo());
                     }
                 }
             }
@@ -432,11 +453,80 @@ public class BoardState {
 
         //push the move onto the stack
         previousMoves.push(move);
-
     }
 
     public void unmakeLastMove(){
+        if (previousMoves.isEmpty()){
+            throw new IllegalStateException();
+        }
 
+        //set local variables
+        Move move = previousMoves.pop();
+        this.whiteKingSideCastling = move.getOldWhiteKingSideCastling();
+        this.whiteQueenSideCastling = move.getOldWhiteQueenSideCastling();
+        this.blackKingSideCastling = move.getOldBlackKingSideCastling();
+        this.blackQueenSideCastling = move.getOldBlackQueenSideCastling();
+        this.halfMoveClock = move.getOldHalfMoveClock();
+        this.fullMoves = move.getOldFullMoves();
+        this.activeColour = move.getOldActiveColour();
+        this.enPassantTarget = move.getOldEnPassantTarget();
+
+        //undo move
+        bitboards[move.getPiece()] &= ~(1L << move.getTo());
+        bitboards[move.getPiece()] |= (1L << move.getFrom());
+
+        //undo promotion
+        if ((move.getFlags() & PROMOTION_FLAG) != 0){
+            int promotedPiece = (activeColour == ChessConstants.WHITE ? 1 : 7)  + (move.getFlags() & 3);
+            bitboards[promotedPiece] &= ~(1L << move.getTo());
+        }
+
+        //undo king castle
+        if (move.getFlags() == 2){
+            //have to move the rooks to their new positions
+            if (activeColour == ChessConstants.WHITE) {
+                //White king-side rook on the bitboard index 1 7th digit
+                bitboards[1] |= (1L << 7);
+                bitboards[1] &= ~(1L << 5);
+            } else {
+                //Black king-side rook on the bitboard index 7 63rd digit
+                bitboards[7] |= (1L << 63);
+                bitboards[7] &= ~(1L << 61);
+            }
+        }
+
+        //undo queen castle
+        if (move.getFlags() == 3){
+            //have to move the rooks to their new positions
+            if (activeColour == ChessConstants.WHITE) {
+                //White queen-side rook on the bitboard index 1 0th digit
+                bitboards[1] |= (1L);
+                bitboards[1] &= ~(1L << 3);
+            } else {
+                //Black queen-side rook on the bitboard index 7 56th digit
+                bitboards[7] |= (1L << 56);
+                bitboards[7] &= ~(1L << 59);
+            }
+        }
+
+        //undo capture
+        if ((move.getFlags() & CAPTURE_FLAG) != 0){
+            int epOffset = 0;
+
+            //check if en passant
+            if (move.getFlags() == 5){
+                if (move.getOldActiveColour() == ChessConstants.WHITE){
+                    epOffset = -8;
+                } else {
+                    epOffset = 8;
+                }
+            }
+            if (move.getCapturedPieceIndex() == -1){
+                System.out.println("as");
+            }
+
+            bitboards[move.getCapturedPieceIndex()] |= (1L << move.getTo() + epOffset);
+        }
     }
 
     @Override

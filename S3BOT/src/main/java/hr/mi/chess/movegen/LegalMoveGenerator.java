@@ -20,7 +20,7 @@ public class LegalMoveGenerator implements MoveGenerator{
         List<ChessPiece> friendlyPieces = boardState.getActiveColour() ? ChessPieceConstants.WHITE_PIECES : ChessPieceConstants.BLACK_PIECES;
         List<ChessPiece> enemyPieces = boardState.getActiveColour() ? ChessPieceConstants.BLACK_PIECES : ChessPieceConstants.WHITE_PIECES;
 
-        List<Move> moves = new ArrayList<>();
+        List<Move> moves = new ArrayList<>(50);
 
         //generate king moves
         long kingDangerSquares = MoveUtil.getKingDangerSquares(boardState.getBitboards(), boardState.getActiveColour());
@@ -68,6 +68,11 @@ public class LegalMoveGenerator implements MoveGenerator{
                 pushMask = 0;
             }
         }
+        //if there are no checkers, the king can castle
+        else {
+            moves.addAll(generateCastlingMoves(boardState, kingDangerSquares, BoardFunctions.calculateOccupiedAll(boardState.getBitboards())));
+        }
+
 
         //calculate pinned pieces and generate their moves
         Set<Long> pinnedPieces = new HashSet<>();
@@ -78,7 +83,7 @@ public class LegalMoveGenerator implements MoveGenerator{
                 potentialAttackers |= boardState.getBitboards()[enemyPieces.get(potentialAttacker).getKey()];
             }
             long attackMaskFromAttacker = MoveUtil.getMoveLine(boardState.getBitboards(), potentialAttackers, -offset, boardState.getPassiveColour());
-            long pinnedBitboard = attackMaskFromKing & attackMaskFromAttacker;
+            long pinnedBitboard = attackMaskFromKing & attackMaskFromAttacker & ~(attackLine);
 
             if (pinnedBitboard != 0) {
                 pinnedPieces.add(pinnedBitboard);
@@ -196,4 +201,26 @@ public class LegalMoveGenerator implements MoveGenerator{
         return moves;
     }
 
+    private static List<Move> generateCastlingMoves (BoardState boardState, long kingDangerSquares, long occupiedSquares){
+        List<Move> moves = new ArrayList<>();
+
+        if (boardState.getActiveColour() == ChessConstants.WHITE){
+            if (boardState.isWhiteKingSideCastling() && (occupiedSquares & ChessBoardConstants.WHITE_KING_SIDE_CASTLING_MASK_BLOCKERS) == 0 && (kingDangerSquares & ChessBoardConstants.WHITE_KING_SIDE_CASTLING_MASK_ATTACKED_SQUARES) == 0){
+                moves.add(new Move(ChessPiece.WHITE_KING.getKey(), 4, 6, 2));
+            }
+            if (boardState.isWhiteQueenSideCastling() && (occupiedSquares & ChessBoardConstants.WHITE_QUEEN_SIDE_CASTLING_MASK_BLOCKERS) == 0 && (kingDangerSquares & ChessBoardConstants.WHITE_QUEEN_SIDE_CASTLING_MASK_ATTACKED_SQUARES) == 0){
+                moves.add(new Move(ChessPiece.WHITE_KING.getKey(), 4, 2, 3));
+            }
+        }
+        else {
+            if (boardState.isBlackKingSideCastling() && (occupiedSquares & ChessBoardConstants.BLACK_KING_SIDE_CASTLING_MASK_BLOCKERS) == 0 && (kingDangerSquares & ChessBoardConstants.BLACK_KING_SIDE_CASTLING_MASK_ATTACKED_SQUARES) == 0){
+                moves.add(new Move(ChessPiece.BLACK_KING.getKey(), 60, 62, 2));
+            }
+            if (boardState.isBlackQueenSideCastling() && (occupiedSquares & ChessBoardConstants.BLACK_QUEEN_SIDE_CASTLING_MASK_BLOCKERS) == 0 && (kingDangerSquares & ChessBoardConstants.BLACK_QUEEN_SIDE_CASTLING_MASK_ATTACKED_SQUARES) == 0){
+                moves.add(new Move(ChessPiece.BLACK_KING.getKey(), 62, 58, 3));
+            }
+        }
+
+        return moves;
+    }
 }

@@ -70,4 +70,10 @@ class LegalMoveGeneratorTest {
         BoardState boardState = new BoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
     }
+
+    @Test
+    void testDebug1(){
+        BoardState boardState = new BoardState("rnbqkbnr/ppppppp1/8/7p/7P/8/PPPPPPP1/RNBQKBNR w KQkq h6 0 2");
+        List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
+    }
 }

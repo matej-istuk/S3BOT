@@ -49,7 +49,7 @@ public class MoveUtil {
 
     public static long piecePushes(long[] bitboards, ChessPiece piece, long pieceBitboard){
         boolean friendlyColour = piece.getColour();
-        return getMoves(bitboards, piece, pieceBitboard, o -> BoardFunctions.calculateOccupiedByColour(o, friendlyColour), o -> BoardFunctions.calculateOccupiedByColour(o, !friendlyColour), MoveOffsetGetters.PUSH_GETTER);
+        return getMoves(bitboards, piece, pieceBitboard, BoardFunctions::calculateOccupiedAll, o -> 0, MoveOffsetGetters.PUSH_GETTER);
     }
 
     public static long pieceCaptures(long[] bitboards, ChessPiece piece, long pieceBitboard){
@@ -61,12 +61,12 @@ public class MoveUtil {
         if (piece.isPawn()){
             return piecePushes(bitboards, piece, pieceBitboard) | pieceCaptures(bitboards, piece, pieceBitboard);
         }
-        return piecePushes(bitboards, piece, pieceBitboard);
+        return pieceCaptures(bitboards, piece, pieceBitboard);
     }
 
     public static long typePushes(long[] bitboards, ChessPiece piece){
         boolean friendlyColour = piece.getColour();
-        return typePushes(bitboards, piece, o -> BoardFunctions.calculateOccupiedByColour(o, friendlyColour), o -> BoardFunctions.calculateOccupiedByColour(o, !friendlyColour));
+        return typePushes(bitboards, piece, BoardFunctions::calculateOccupiedAll, o -> 0);
     }
 
     public static long typeCaptures(long[] bitboards, ChessPiece piece){
