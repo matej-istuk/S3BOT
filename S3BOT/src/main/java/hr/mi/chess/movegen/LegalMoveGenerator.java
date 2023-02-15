@@ -12,7 +12,7 @@ import hr.mi.chess.util.constants.ChessPieceConstants;
 
 import java.util.*;
 
-public class LegalMoveGenerator implements MoveGenerator{
+public class LegalMoveGenerator {
 
     public static List<Move> generateMoves(BoardState boardState) {
         long pushMask = 0xFFFFFFFFFFFFFFFFL;
@@ -42,7 +42,7 @@ public class LegalMoveGenerator implements MoveGenerator{
             long newCheckers = attackMask & BoardFunctions.calculateOccupiedByIndexes(boardState.getBitboards(), ChessPieceConstants.POSSIBLE_ATTACKERS_BY_OFFSET.get(offset), boardState.getPassiveColour());
             checkers |= newCheckers;
 
-            if (newCheckers > 0L){
+            if (newCheckers != 0L){
                 //storing multiple attack lines makes no sense, because in case of a double check, the king must move
                 attackLine = attackMask & ~newCheckers;
             }
@@ -88,7 +88,9 @@ public class LegalMoveGenerator implements MoveGenerator{
             if (pinnedBitboard != 0) {
                 pinnedPieces.add(pinnedBitboard);
                 ChessPiece pinnedPiece = BoardFunctions.getPieceByBitboard(boardState.getBitboards(), pinnedBitboard);
-                assert pinnedPiece != null;
+                if (pinnedPiece == null){
+                    assert pinnedPiece != null;
+                }
 
                 long pinnedLine = MoveUtil.getMoveLine(boardState.getBitboards(), pinnedBitboard, offset, boardState.getActiveColour()) | MoveUtil.getMoveLine(boardState.getBitboards(), pinnedBitboard, -offset, boardState.getActiveColour());
 
@@ -119,14 +121,19 @@ public class LegalMoveGenerator implements MoveGenerator{
 
         if (piece.isPawn()){
             long legalPushes = MoveUtil.piecePushes(boardState.getBitboards(), piece, pieceBitboard) & pushMask;
-            long legalCaptures = MoveUtil.pieceCaptures(boardState.getBitboards(), piece, pieceBitboard) & captureMask & BoardFunctions.calculateOccupiedByColour(boardState.getBitboards(), boardState.getPassiveColour());
+            long legalCaptures = MoveUtil.pieceCaptures(boardState.getBitboards(), piece, pieceBitboard);
             long epCapture = 0L;
 
             //epCapture only allowed if the new pawn position is in the push mask and the captured pawn is in the capture mask
             if (boardState.getEnPassantTarget() != -1
                 && ((1L << (boardState.getEnPassantTarget() + (boardState.getActiveColour() == ChessConstants.WHITE ? ChessBoardConstants.SOUTH : ChessBoardConstants.NORTH))) & captureMask) != 0) {
-                epCapture = (1L << boardState.getEnPassantTarget()) & pushMask;
+                epCapture = (1L << boardState.getEnPassantTarget());
+                if ((epCapture & legalCaptures) == 0){
+                    epCapture = 0L;
+                }
             }
+
+            legalCaptures = legalCaptures & captureMask & BoardFunctions.calculateOccupiedByColour(boardState.getBitboards(), boardState.getPassiveColour());
 
             BitboardUtil.forEachOneBit(legalPushes, bitIndex -> {
                 int flag = 0;
@@ -164,7 +171,7 @@ public class LegalMoveGenerator implements MoveGenerator{
             if (epCapture != 0){
                 int epCaptureIndex = Bitwise.findIndexOfMS1B(epCapture);
                 //check for discovered check
-                int colourOffset = boardState.getActiveColour() == ChessConstants.WHITE ? 0: 6;
+                int colourOffset = boardState.getActiveColour() == ChessConstants.WHITE ? 0 : 6;
                 int pawnEpOffset = boardState.getActiveColour() == ChessConstants.WHITE ? ChessBoardConstants.SOUTH : ChessBoardConstants.NORTH;
 
                 //first we must remove the captured and capturing pawn
@@ -172,14 +179,16 @@ public class LegalMoveGenerator implements MoveGenerator{
                 boardState.getBitboards()[ChessPieceConstants.PAWN + 6 - colourOffset] &= ~(1L << (epCaptureIndex + pawnEpOffset));
 
                 //then calculate the new king danger squares
-                long kingDangerSquares = MoveUtil.getKingDangerSquares(boardState.getBitboards(), boardState.getActiveColour());
+                long kingBitmask = boardState.getBitboards()[ChessPieceConstants.KING + colourOffset];
+                long kingDangerSquares = MoveUtil.getMoveLine(boardState.getBitboards(), kingBitmask, ChessBoardConstants.EAST, piece.getColour());
+                kingDangerSquares |= MoveUtil.getMoveLine(boardState.getBitboards(), kingBitmask, ChessBoardConstants.WEST, piece.getColour());
 
                 //then return the pieces
                 boardState.getBitboards()[ChessPieceConstants.PAWN + colourOffset] |= pieceBitboard;
                 boardState.getBitboards()[ChessPieceConstants.PAWN + 6 - colourOffset] |= (1L << (epCaptureIndex + pawnEpOffset));
 
-                //if there is no discovered check, en passant move is legal
-                if ((kingDangerSquares & boardState.getBitboards()[ChessPieceConstants.KING + (boardState.getActiveColour() == ChessConstants.WHITE ? 0: 6)]) == 0){
+                //the only pieces that can check the king after an en passant are the rook and queen, so we check if they can now see the king
+                if ((kingDangerSquares & boardState.getBitboards()[ChessPieceConstants.ROOK + 6 - colourOffset]) == 0 && (kingDangerSquares & boardState.getBitboards()[ChessPieceConstants.QUEEN + 6 - colourOffset]) == 0){
                     moves.add(new Move(piece.getKey(), originOffset, epCaptureIndex, 5));
                 }
             }
@@ -191,7 +200,7 @@ public class LegalMoveGenerator implements MoveGenerator{
             BitboardUtil.forEachOneBit(legalPieceMoves, bitIndex -> {
                 int flag = 0;
                 //if move is a capture
-                if ((enemyPieces & (1L << bitIndex)) > 0){
+                if ((enemyPieces & (1L << bitIndex)) != 0){
                     flag = 4;
                 }
                 moves.add(new Move(piece.getKey(), originOffset, bitIndex, flag));
@@ -217,7 +226,7 @@ public class LegalMoveGenerator implements MoveGenerator{
                 moves.add(new Move(ChessPiece.BLACK_KING.getKey(), 60, 62, 2));
             }
             if (boardState.isBlackQueenSideCastling() && (occupiedSquares & ChessBoardConstants.BLACK_QUEEN_SIDE_CASTLING_MASK_BLOCKERS) == 0 && (kingDangerSquares & ChessBoardConstants.BLACK_QUEEN_SIDE_CASTLING_MASK_ATTACKED_SQUARES) == 0){
-                moves.add(new Move(ChessPiece.BLACK_KING.getKey(), 62, 58, 3));
+                moves.add(new Move(ChessPiece.BLACK_KING.getKey(), 60, 58, 3));
             }
         }
 

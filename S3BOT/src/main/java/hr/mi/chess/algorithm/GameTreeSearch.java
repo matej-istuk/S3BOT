@@ -18,7 +18,8 @@ public class GameTreeSearch {
 
         for (Move move: moves){
             boardState.makeMove(move);
-            result += countMovesAtDepth(boardState, depth - 1);
+            long temp = countMovesAtDepth(boardState, depth - 1);
+            result += temp;
             boardState.unmakeLastMove();
         }
 

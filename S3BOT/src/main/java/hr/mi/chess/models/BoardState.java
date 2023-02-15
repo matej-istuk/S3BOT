@@ -8,7 +8,13 @@ import hr.mi.chess.util.constants.ChessPieceConstants;
 import java.util.Arrays;
 import java.util.Stack;
 
+
+/**
+ * Represents the state of a chess board, holding all necessary information.
+ * @author Matej Istuk
+ */
 public class BoardState {
+    //the following 4 flags are for move encoding
     private final static int PROMOTION_FLAG = 8;
     private final static int CAPTURE_FLAG = 4;
     private final static int SPECIAL_1_FLAG = 2;
@@ -26,53 +32,101 @@ public class BoardState {
     private int halfMoveClock;
     private boolean activeColour;
     private int enPassantTarget;
-    private Stack<Move> previousMoves;
+    private final Stack<Move> previousMoves;
 
+    /**
+     * Creates the starting board-state of a standard chess game.
+     */
     public BoardState() {
         this(ChessBoardConstants.STARTING_POSITION_FEN);
     }
 
+    /**
+     * Creates the board-state as described by the given fen string
+     * @param fen a string describing a chess position. See
+     *            <a href="https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation">Forsyth–Edwards Notation</a> for more detail
+     */
     public BoardState(String fen){
         loadFen(fen);
         previousMoves = new Stack<>();
     }
 
-
+    /**
+     * Returns the bitboards
+     * @return long array of length 12
+     */
     public long[] getBitboards() {
         return bitboards;
     }
 
+    /**
+     * Returns if king side castling for white is allowed.
+     * @return true if king side castling for white is allowed, false otherwise
+     */
     public boolean isWhiteKingSideCastling() {
         return whiteKingSideCastling;
     }
 
+    /**
+     * Returns if queen side castling for white is allowed.
+     * @return true if queen side castling for white is allowed, false otherwise
+     */
     public boolean isWhiteQueenSideCastling() {
         return whiteQueenSideCastling;
     }
 
+    /**
+     * Returns if king side castling for black is allowed.
+     * @return true if king side castling for black is allowed, false otherwise
+     */
     public boolean isBlackKingSideCastling() {
         return blackKingSideCastling;
     }
 
+    /**
+     * Returns if queen side castling for black is allowed.
+     * @return true if queen side castling for black is allowed, false otherwise
+     */
     public boolean isBlackQueenSideCastling() {
         return blackQueenSideCastling;
     }
 
+    /**
+     * Returns how many full-moves has passed. A full-move is completed whenever black moves.
+     * @return the number of full-moves
+     */
     public int getFullMoves() {
         return fullMoves;
     }
 
+    /**
+     * Returns how many half-moves have passed since the last pawn move or piece capture.
+     * @return the number of half-moves
+     */
     public int getHalfMoveClock() {
         return halfMoveClock;
     }
 
+    /**
+     * Returns the active colour as described in <code>ChessConstants</code> class.
+     * @return true if the active colour is white, and false if the active colour is black
+     */
     public boolean getActiveColour() {
         return activeColour;
     }
 
+    /**
+     * Returns the passive colour as described in <code>ChessConstants</code> class.
+     * @return false if the active colour is white, and true if the active colour is black
+     */
     public boolean getPassiveColour() {
         return !activeColour;
     }
+
+    /**
+     * Returns the LERF offset of the square on which the double pushed pawn can be captured.
+     * @return integer describing the LERF offset
+     */
     public int getEnPassantTarget() {
         return enPassantTarget;
     }
@@ -455,6 +509,9 @@ public class BoardState {
         previousMoves.push(move);
     }
 
+    /**
+     * Reverts the <code>BoardState</code> object to the state before the last move was made
+     */
     public void unmakeLastMove(){
         if (previousMoves.isEmpty()){
             throw new IllegalStateException();

@@ -2,6 +2,19 @@ package hr.mi.chess.models;
 
 import hr.mi.chess.util.constants.ChessConstants;
 
+/**
+ * Enum containing all chess pieces, each containing the following information:
+ * <ul>
+ *     <li>key - corresponding to the bitboard index of the piece</li>
+ *     <li>colour</li>
+ *     <li>pushOffsets</li>
+ *     <li>captureOffsets</li>
+ *     <li>moveOffsets</li>
+ *     <li>sliding - if the piece is sliding</li>
+ *     <li>pawn - if the piece is a pawn</li>
+ * </ul>
+ * @author Matej Istuk
+ */
 public enum ChessPiece {
     WHITE_PAWN(0, ChessConstants.WHITE, new int[] {8}, new int[] {7, 9}, new int[] {7, 8, 9}, false, true),
     WHITE_ROOK(1, ChessConstants.WHITE, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, new int[] {8, 1, -8, -1}, true, false),
