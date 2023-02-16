@@ -1,4 +1,4 @@
-package hr.mi.chess.util.constants;
+package hr.mi.chess.constants;
 
 import hr.mi.chess.models.ChessPiece;
 

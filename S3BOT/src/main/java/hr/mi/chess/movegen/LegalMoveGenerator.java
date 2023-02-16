@@ -6,9 +6,10 @@ import hr.mi.chess.models.Move;
 import hr.mi.chess.movegen.helpers.BitboardUtil;
 import hr.mi.chess.movegen.helpers.Bitwise;
 import hr.mi.chess.movegen.helpers.MoveUtil;
-import hr.mi.chess.util.constants.ChessBoardConstants;
-import hr.mi.chess.util.constants.ChessConstants;
-import hr.mi.chess.util.constants.ChessPieceConstants;
+import hr.mi.chess.constants.ChessBoardConstants;
+import hr.mi.chess.constants.ChessConstants;
+import hr.mi.chess.constants.ChessPieceConstants;
+import hr.mi.chess.util.BoardFunctions;
 
 import java.util.*;
 

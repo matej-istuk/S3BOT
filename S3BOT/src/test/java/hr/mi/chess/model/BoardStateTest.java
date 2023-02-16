@@ -2,7 +2,7 @@ package hr.mi.chess.model;
 
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
-import hr.mi.chess.util.constants.ChessPieceConstants;
+import hr.mi.chess.constants.ChessPieceConstants;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

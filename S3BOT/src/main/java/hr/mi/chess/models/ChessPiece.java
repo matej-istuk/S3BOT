@@ -1,6 +1,6 @@
 package hr.mi.chess.models;
 
-import hr.mi.chess.util.constants.ChessConstants;
+import hr.mi.chess.constants.ChessConstants;
 
 /**
  * Enum containing all chess pieces, each containing the following information:

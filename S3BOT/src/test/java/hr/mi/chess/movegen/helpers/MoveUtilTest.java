@@ -2,7 +2,7 @@ package hr.mi.chess.movegen.helpers;
 
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.ChessPiece;
-import hr.mi.chess.util.constants.ChessConstants;
+import hr.mi.chess.constants.ChessConstants;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

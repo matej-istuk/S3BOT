@@ -1,14 +1,13 @@
 package hr.mi.chess.movegen.helpers;
 
-import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.ChessPiece;
-import hr.mi.chess.movegen.BoardFunctions;
+import hr.mi.chess.util.BoardFunctions;
 import hr.mi.chess.movegen.helpers.implementations.MoveOffsetGetters;
 import hr.mi.chess.movegen.helpers.interfaces.BlockerCalcFunc;
 import hr.mi.chess.movegen.helpers.interfaces.MoveOffsetGetter;
-import hr.mi.chess.util.constants.ChessBoardConstants;
-import hr.mi.chess.util.constants.ChessConstants;
-import hr.mi.chess.util.constants.ChessPieceConstants;
+import hr.mi.chess.constants.ChessBoardConstants;
+import hr.mi.chess.constants.ChessConstants;
+import hr.mi.chess.constants.ChessPieceConstants;
 
 import java.util.List;
 import java.util.function.LongUnaryOperator;

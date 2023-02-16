@@ -1,8 +1,9 @@
-package hr.mi.chess.movegen;
+package hr.mi.chess.util;
 
 import hr.mi.chess.models.ChessPiece;
-import hr.mi.chess.util.constants.ChessConstants;
-import hr.mi.chess.util.constants.ChessPieceConstants;
+import hr.mi.chess.movegen.helpers.MoveUtil;
+import hr.mi.chess.constants.ChessConstants;
+import hr.mi.chess.constants.ChessPieceConstants;
 
 public class BoardFunctions {
     private static final int[] offsets = {0, 1, 2, 3, 4, 5};
@@ -36,5 +37,11 @@ public class BoardFunctions {
             occupied |= bitboards[i + offset];
         }
         return occupied;
+    }
+
+    public static boolean determineCheckByColour(long[] bitboards, boolean colour){
+        int offset = colour == ChessConstants.WHITE ? 0 : 6;
+        long kingDangerSquares = MoveUtil.getKingDangerSquares(bitboards, colour);
+        return (bitboards[ChessPieceConstants.KING + offset] & kingDangerSquares) != 0;
     }
 }

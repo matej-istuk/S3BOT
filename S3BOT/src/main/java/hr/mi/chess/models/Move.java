@@ -236,4 +236,26 @@ public class Move {
     public void setCapturedPieceIndex(int capturedPieceIndex) {
         this.capturedPieceIndex = capturedPieceIndex;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Move move = (Move) o;
+
+        if (piece != move.piece) return false;
+        if (from != move.from) return false;
+        if (to != move.to) return false;
+        return flags == move.flags;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = piece;
+        result = 31 * result + from;
+        result = 31 * result + to;
+        result = 31 * result + flags;
+        return result;
+    }
 }

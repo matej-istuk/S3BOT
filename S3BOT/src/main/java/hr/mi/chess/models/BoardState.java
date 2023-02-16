@@ -1,9 +1,9 @@
 package hr.mi.chess.models;
 
-import hr.mi.chess.util.constants.ChessBoardConstants;
+import hr.mi.chess.constants.ChessBoardConstants;
 import hr.mi.chess.util.ChessTranslator;
-import hr.mi.chess.util.constants.ChessConstants;
-import hr.mi.chess.util.constants.ChessPieceConstants;
+import hr.mi.chess.constants.ChessConstants;
+import hr.mi.chess.constants.ChessPieceConstants;
 
 import java.util.Arrays;
 import java.util.Stack;

@@ -1,6 +1,6 @@
 package hr.mi.chess.movegen.helpers;
 
-import hr.mi.chess.util.constants.ChessBoardConstants;
+import hr.mi.chess.constants.ChessBoardConstants;
 
 import java.util.function.LongUnaryOperator;
 

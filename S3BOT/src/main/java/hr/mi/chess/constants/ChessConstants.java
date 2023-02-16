@@ -1,4 +1,4 @@
-package hr.mi.chess.util.constants;
+package hr.mi.chess.constants;
 
 public class ChessConstants {
     public static final boolean WHITE = true;
