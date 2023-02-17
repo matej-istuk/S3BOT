@@ -1,4 +1,4 @@
-package hr.mi.chess.game.support;
+package hr.mi.chess.game;
 
 public enum GameStateEnum {
     IN_PROGRESS,

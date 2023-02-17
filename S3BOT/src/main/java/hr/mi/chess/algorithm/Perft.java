@@ -6,7 +6,7 @@ import hr.mi.chess.movegen.LegalMoveGenerator;
 
 import java.util.List;
 
-public class GameTreeSearch {
+public class Perft {
     public static long countMovesAtDepth(BoardState boardState, int depth){
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
 

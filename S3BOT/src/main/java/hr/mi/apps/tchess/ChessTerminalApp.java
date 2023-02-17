@@ -3,9 +3,10 @@ package hr.mi.apps.tchess;
 import hr.mi.chess.constants.ChessConstants;
 import hr.mi.chess.constants.ChessPieceConstants;
 import hr.mi.chess.game.ChessGame;
-import hr.mi.chess.game.support.GameStateEnum;
+import hr.mi.chess.game.GameStateEnum;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.player.Player;
+import hr.mi.chess.player.ai.PlayerAlan;
 import hr.mi.chess.player.ai.PlayerRandy;
 import hr.mi.chess.player.human.HumanPlayer;
 
@@ -23,8 +24,9 @@ public class ChessTerminalApp {
     }
 
     private void playGame(){
-        Player whitePlayer = new HumanPlayer(new TerminalUserBridge());
+        Player whitePlayer = new PlayerAlan(5);
         Player blackPlayer = new PlayerRandy(true);
+
 
         ChessGame game = new ChessGame(whitePlayer, blackPlayer);
         GameStateEnum gameState = GameStateEnum.IN_PROGRESS;

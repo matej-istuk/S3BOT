@@ -1,7 +1,5 @@
 package hr.mi.chess.game;
 
-import hr.mi.chess.game.support.GameListener;
-import hr.mi.chess.game.support.GameStateEnum;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
 import hr.mi.chess.player.Player;

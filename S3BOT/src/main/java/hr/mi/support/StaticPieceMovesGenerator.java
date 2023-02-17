@@ -1,10 +1,10 @@
-package hr.mi.chess.support;
+package hr.mi.support;
 
 import hr.mi.chess.models.ChessPiece;
 
 import java.util.*;
 
-public class PieceMovesGenerator {
+public class StaticPieceMovesGenerator {
     public static void main(String[] args) {
         generateKingMoves();
     }
