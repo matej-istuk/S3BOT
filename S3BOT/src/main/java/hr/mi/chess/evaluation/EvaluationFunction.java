@@ -14,5 +14,5 @@ public interface EvaluationFunction {
      * @param boardState the board-state to be evaluates
      * @return a double representing the absolute "goodness" of the board-state
      */
-    double evaluate(BoardState boardState);
+    int evaluate(BoardState boardState);
 }

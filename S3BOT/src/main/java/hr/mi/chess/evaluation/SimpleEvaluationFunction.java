@@ -14,14 +14,14 @@ public class SimpleEvaluationFunction implements EvaluationFunction{
      * @return a double representing the absolute "goodness" of the board-state
      */
     @Override
-    public double evaluate(BoardState boardState) {
+    public int evaluate(BoardState boardState) {
         return calculateBoardValueByColour(boardState.getBitboards(), ChessConstants.WHITE)
                 - calculateBoardValueByColour(boardState.getBitboards(), ChessConstants.BLACK);
     }
 
-    private double calculateBoardValueByColour(long[] bitboards, boolean colour){
+    private int calculateBoardValueByColour(long[] bitboards, boolean colour){
         int offset = colour == ChessConstants.WHITE ? 0 : 6;
-        double res = 0;
+        int res = 0;
 
         for (int i = 0; i < 6; i++){
             res += Long.bitCount(bitboards[i + offset]) * pieceValues[i];

@@ -25,7 +25,7 @@ public class ChessTerminalApp {
 
     private void playGame(){
         Player whitePlayer = new PlayerAlan(5);
-        Player blackPlayer = new PlayerRandy(true);
+        Player blackPlayer = new HumanPlayer(new TerminalUserBridge());
 
 
         ChessGame game = new ChessGame(whitePlayer, blackPlayer);
