@@ -1,5 +1,6 @@
 package hr.mi.apps.tchess;
 
+import hr.mi.apps.bridges.TerminalUserBridge;
 import hr.mi.chess.constants.ChessConstants;
 import hr.mi.chess.constants.ChessPieceConstants;
 import hr.mi.chess.game.ChessGame;
@@ -7,7 +8,6 @@ import hr.mi.chess.game.GameStateEnum;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.player.Player;
 import hr.mi.chess.player.ai.PlayerAlan;
-import hr.mi.chess.player.ai.PlayerRandy;
 import hr.mi.chess.player.human.HumanPlayer;
 
 import java.io.IOException;

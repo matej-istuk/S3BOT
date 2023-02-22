@@ -1,4 +1,4 @@
-package hr.mi.apps.tchess;
+package hr.mi.apps.bridges;
 
 import hr.mi.chess.player.human.FromToPair;
 import hr.mi.chess.player.human.UserBridge;

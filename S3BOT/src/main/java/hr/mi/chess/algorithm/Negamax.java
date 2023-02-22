@@ -24,8 +24,12 @@ public class Negamax {
     private double getValueRec(BoardState boardState, int depth, double alpha, double beta, int colour){
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
 
-        if (depth == 0 || moves.size() == 0){
+        if (depth == 0){
             return colour * evaluationFunction.evaluate(boardState);
+        }
+
+        if (moves.size() == 0){
+            return -colour * Double.MAX_VALUE;
         }
 
         //TODO order moves for better alpha beta pruning
