@@ -33,6 +33,7 @@ public class HumanPlayer implements Player {
     private Move findCorrespondingMove (List<Move> moves, int from, int to){
         //a list because pawn promotions will have multiple options
         List<Move> possibleMoves = new ArrayList<>();
+        Move correspondingMove = null;
 
         for (Move move: moves){
             if (move.getFrom() == from && move.getTo() == to){
@@ -40,21 +41,20 @@ public class HumanPlayer implements Player {
             }
         }
 
+        if (possibleMoves.size() == 1){
+            correspondingMove = possibleMoves.get(0);
+        }
         //4 possible promotion moves
-        if (possibleMoves.size() == 4){
-            int promotedPieceFlags = userBridge.requestPromotedPiece() - 1;
+        else if (possibleMoves.size() == 4){
+            int promotedPieceFlags = userBridge.requestPromotedPiece();
             assert promotedPieceFlags >= 0 && promotedPieceFlags <= 3;
             for (Move move: possibleMoves){
-                if ((move.getFlags() & 3) != promotedPieceFlags) {
-                    moves.remove(move);
+                if ((move.getFlags() & 3) == promotedPieceFlags) {
+                    correspondingMove = move;
                 }
             }
         }
 
-        if (possibleMoves.size() == 1){
-            return possibleMoves.get(0);
-        }
-
-        return null;
+        return correspondingMove;
     }
 }

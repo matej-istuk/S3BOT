@@ -10,9 +10,9 @@ public class BoardFunctions {
     private static final int[] blackOffsets = {6, 7, 8, 9, 10, 11};
     private static final int[] all = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
-    public static ChessPiece getPieceByBitboard(long[] bitboards, long checkerBitboard){
+    public static ChessPiece getPieceByBitboard(long[] bitboards, long pieceBitboard){
         for (ChessPiece chessPiece: ChessPiece.values()){
-            if ((bitboards[chessPiece.getKey()] & checkerBitboard) != 0){
+            if ((bitboards[chessPiece.getKey()] & pieceBitboard) != 0){
                 return chessPiece;
             }
         }

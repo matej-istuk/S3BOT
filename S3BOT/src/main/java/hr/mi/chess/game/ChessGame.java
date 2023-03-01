@@ -1,5 +1,6 @@
 package hr.mi.chess.game;
 
+import hr.mi.chess.constants.ChessBoardConstants;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
 import hr.mi.chess.player.Player;
@@ -17,11 +18,11 @@ public class ChessGame {
     private final List<GameListener> listeners;
 
     public ChessGame(Player whitePlayer, Player blackPlayer) {
-        this(new BoardState(), whitePlayer, blackPlayer);
+        this(ChessBoardConstants.STARTING_POSITION_FEN, whitePlayer, blackPlayer);
     }
 
-    public ChessGame(BoardState boardState, Player whitePlayer, Player blackPlayer) {
-        this.boardState = boardState;
+    public ChessGame(String fen, Player whitePlayer, Player blackPlayer) {
+        this.boardState = new BoardState(fen);
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
         this.listeners = new ArrayList<>();

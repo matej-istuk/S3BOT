@@ -7,15 +7,19 @@ import hr.mi.chess.util.BoardFunctions;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JChessBoard extends JComponent {
 
     private final JChessTile[] tiles;
     private final ChessGame game;
+    private final List<TileClickListener> listeners;
 
     public JChessBoard(ChessGame game){
         this.tiles = new JChessTile[64];
         this.game = game;
+        this.listeners = new ArrayList<>();
         this.setLayout(new GridLayout(8, 8, 0, 0));
         for (int i = 7; i >= 0; i--){
             for (int j = 0; j < 8; j++){
@@ -61,6 +65,7 @@ public class JChessBoard extends JComponent {
         tile.setBackground((row % 2 == column % 2) ? new Color(207, 138, 70) : new Color(0xFDCC9D));
         this.add(tile);
         this.tiles[8*row+column] = tile;
+        tile.addActionListener(o -> fireListeners(tile.getLERFIndex()));
     }
 
     private void repaintTiles(){
@@ -75,5 +80,17 @@ public class JChessBoard extends JComponent {
                 tile.drawPiece(piece);
             }
         }
+    }
+
+    private void fireListeners(int tileIndex){
+        listeners.forEach(o -> o.tileClicked(tileIndex));
+    }
+
+    public void addListener(TileClickListener listener){
+        listeners.add(listener);
+    }
+
+    public void removeListener(TileClickListener listener){
+        listeners.remove(listener);
     }
 }
