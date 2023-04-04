@@ -5,6 +5,7 @@ import hr.mi.apps.jchess.components.JChessBoard;
 import hr.mi.chess.game.ChessGame;
 import hr.mi.chess.player.Player;
 import hr.mi.chess.player.ai.PlayerAlan;
+import hr.mi.chess.player.ai.PlayerRandy;
 import hr.mi.chess.player.human.FromToPair;
 import hr.mi.chess.player.human.HumanPlayer;
 
