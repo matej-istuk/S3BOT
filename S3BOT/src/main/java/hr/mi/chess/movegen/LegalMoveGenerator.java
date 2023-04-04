@@ -89,9 +89,7 @@ public class LegalMoveGenerator {
             if (pinnedBitboard != 0) {
                 pinnedPieces.add(pinnedBitboard);
                 ChessPiece pinnedPiece = BoardFunctions.getPieceByBitboard(boardState.getBitboards(), pinnedBitboard);
-                if (pinnedPiece == null){
-                    assert pinnedPiece != null;
-                }
+                assert pinnedPiece != null;
 
                 long pinnedLine = MoveUtil.getMoveLine(boardState.getBitboards(), pinnedBitboard, offset, boardState.getActiveColour()) | MoveUtil.getMoveLine(boardState.getBitboards(), pinnedBitboard, -offset, boardState.getActiveColour());
 

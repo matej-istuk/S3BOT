@@ -42,6 +42,7 @@ public class Negamax {
             boardState.unmakeLastMove();
             alpha = Math.max(alpha, value);
             if (alpha >= beta){
+                //TODO killer moves here (i think)
                 break;
             }
         }
