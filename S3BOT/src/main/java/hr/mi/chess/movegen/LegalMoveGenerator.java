@@ -206,6 +206,20 @@ public class LegalMoveGenerator {
             });
         }
 
+        int activeColourOffset = boardState.getActiveColour() == ChessConstants.WHITE ? 6 : 0;
+        for (Move move: moves) {
+            if (move.isEp()) {
+                move.setCapturedPieceIndex(activeColourOffset);
+            }
+            else if (move.isCapture()){
+                for (int i = activeColourOffset; i < (5 + activeColourOffset); i++) {
+                    if ((boardState.getBitboards()[i] & (1L << move.getTo())) != 0) {
+                        move.setCapturedPieceIndex(i);
+                    }
+                }
+            }
+        }
+
         return moves;
     }
 

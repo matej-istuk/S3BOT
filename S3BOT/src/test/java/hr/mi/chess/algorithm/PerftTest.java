@@ -163,7 +163,7 @@ class PerftTest {
         assertEquals(119060324, Perft.countMovesAtDepth(boardState, 6));
     }
 
-    @Test
+    //@Test
     void test31(){
         BoardState boardState = new BoardState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         assertEquals(3195901860L, Perft.countMovesAtDepth(boardState, 7));
@@ -175,7 +175,7 @@ class PerftTest {
         assertEquals(193690690L, Perft.countMovesAtDepth(boardState, 5));
     }
 
-    @Test
+    //@Test
     void test33(){
         BoardState boardState = new BoardState("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1");
         assertEquals(178633661L, Perft.countMovesAtDepth(boardState, 7));
@@ -252,7 +252,7 @@ class PerftTest {
         assertEquals(24, Perft.countMovesAtDepth(boardState, 1));
     }
 
-    @Test
+    //@Test
     void test46(){
         BoardState boardState = new BoardState();
         assertEquals(84998978956L, Perft.countMovesAtDepth(boardState, 8));

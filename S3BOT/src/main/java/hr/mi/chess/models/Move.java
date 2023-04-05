@@ -237,6 +237,20 @@ public class Move {
         this.capturedPieceIndex = capturedPieceIndex;
     }
 
+    /**
+     * @return returns true if the move is a capture.
+     */
+    public boolean isCapture() {
+        return (flags & 4) == 4;
+    }
+
+    /**
+     * @return returns true if the move is a ep.
+     */
+    public boolean isEp() {
+        return flags == 5;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
