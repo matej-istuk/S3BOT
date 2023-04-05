@@ -19,7 +19,7 @@ public class BoardState {
     private final static int CAPTURE_FLAG = 4;
     private final static int SPECIAL_1_FLAG = 2;
     private final static int SPECIAL_0_FLAG = 1;
-
+    private int lastMovedPieceIndex = -1;
     /**
      * Bitboards in the Little-Endian Rank-File Mapping
      */
@@ -383,6 +383,9 @@ public class BoardState {
      * </td></tr></tbody>
      */
     public void makeMove(Move move){
+        //set last moved piece
+        lastMovedPieceIndex = move.getTo();
+
         move.setOldWhiteKingSideCastling(whiteKingSideCastling);
         move.setOldWhiteQueenSideCastling(whiteQueenSideCastling);
         move.setOldBlackKingSideCastling(blackKingSideCastling);
@@ -519,6 +522,10 @@ public class BoardState {
 
         //set local variables
         Move move = previousMoves.pop();
+
+        //set last moved piece index
+        this.lastMovedPieceIndex = move.getTo();
+
         this.whiteKingSideCastling = move.getOldWhiteKingSideCastling();
         this.whiteQueenSideCastling = move.getOldWhiteQueenSideCastling();
         this.blackKingSideCastling = move.getOldBlackKingSideCastling();
@@ -584,6 +591,10 @@ public class BoardState {
 
             bitboards[move.getCapturedPieceIndex()] |= (1L << move.getTo() + epOffset);
         }
+    }
+
+    public int getLastMovedPieceIndex() {
+        return lastMovedPieceIndex;
     }
 
     @Override

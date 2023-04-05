@@ -15,9 +15,9 @@ public class SimplePlusEvaluationFunction implements EvaluationFunction{
 
     private final int[] pieceValues = {
             100,
+            500,
             320,
             330,
-            500,
             900,
             200000
     };
