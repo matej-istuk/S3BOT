@@ -21,7 +21,7 @@ public class LegalMoveGenerator {
         List<ChessPiece> friendlyPieces = boardState.getActiveColour() ? ChessPieceConstants.WHITE_PIECES : ChessPieceConstants.BLACK_PIECES;
         List<ChessPiece> enemyPieces = boardState.getActiveColour() ? ChessPieceConstants.BLACK_PIECES : ChessPieceConstants.WHITE_PIECES;
 
-        List<Move> moves = new ArrayList<>(50);
+        List<Move> moves = new LinkedList<>();
 
         //generate king moves
         long kingDangerSquares = MoveUtil.getKingDangerSquares(boardState.getBitboards(), boardState.getActiveColour());
