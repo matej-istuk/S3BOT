@@ -245,9 +245,16 @@ public class Move {
     }
 
     /**
-     * @return returns true if the move is a ep.
+     * @return returns true if the move is an ep.
      */
     public boolean isEp() {
+        return flags == 5;
+    }
+
+    /**
+     * @return returns true if the move is a promotion.
+     */
+    public boolean isPromotion() {
         return flags == 5;
     }
 

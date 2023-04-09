@@ -135,13 +135,17 @@ public class BoardState {
      * Parses the received string as FEN, loading the represented chess board state into itself.
      * @param fen FEN string
      */
-    private void loadFen(String fen) {
+    public void loadFen(String fen) {
         String[] fenArr = fen.split(" ");
-        assert fenArr.length == 6;
+        if(fenArr.length != 6) {
+            throw new IllegalArgumentException();
+        }
 
         //Piece Placement
         String[] rows = fenArr[0].split("/");
-        assert rows.length == 8;
+        if (rows.length != 8)
+            throw new IllegalArgumentException();
+
         int index = 56;
         for (String row: rows){
             int offset = 0;
@@ -168,7 +172,7 @@ public class BoardState {
 
         //Possible En Passant Targets
         if (!fenArr[3].equals("-")){
-            enPassantTarget = ChessTranslator.AlgebraicToLERF(fenArr[3]);
+            enPassantTarget = ChessTranslator.algebraicPosToLERF(fenArr[3]);
         }
         else {
             enPassantTarget = -1;
@@ -179,9 +183,13 @@ public class BoardState {
 
         //Fullmove Number
         fullMoves = Integer.parseInt(fenArr[5]);
+        lastMovedPieceIndex = -1;
+        previousMoves.clear();
     }
 
-
+    public void loadStartingPosition(){
+        loadFen(ChessBoardConstants.STARTING_POSITION_FEN);
+    }
     /**
      * This move method does not check the legality of the moves, it just executes them, so it should only be used by
      * something that checks the move legality beforehand

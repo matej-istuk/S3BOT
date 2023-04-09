@@ -19,6 +19,6 @@ public class PlayerAlan implements Player {
 
     @Override
     public Move requestMove(BoardState boardState) {
-        return (new GameStateSearch(new SimplePlusEvaluationFunction(), 7)).getBestMove(boardState);
+        return (new GameStateSearch(new SimplePlusEvaluationFunction())).getBestMove(boardState, 7);
     }
 }

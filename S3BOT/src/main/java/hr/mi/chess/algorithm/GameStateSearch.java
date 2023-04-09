@@ -15,19 +15,21 @@ import java.util.Objects;
 
 public class GameStateSearch {
     private final EvaluationFunction evaluationFunction;
-    private final int searchPly;
     private SearchInfo searchInfo;
     //private static final MoveComparator moveComparator = new MoveComparator();
     private int statesSearched;
     private int quiescenceStatesSearched;
+    private int searchPly;
 
-    public GameStateSearch(EvaluationFunction evaluationFunction, int searchPly) {
+    public GameStateSearch(EvaluationFunction evaluationFunction) {
         this.evaluationFunction = evaluationFunction;
-        this.searchPly = searchPly;
     }
 
-    public Move getBestMove(BoardState boardState){
+
+
+    public Move getBestMove(BoardState boardState, int searchPly){
         this.searchInfo = new SearchInfo();
+        this.searchPly = searchPly;
         long searchStartTime = System.currentTimeMillis();
         statesSearched = 0;
         quiescenceStatesSearched = 0;

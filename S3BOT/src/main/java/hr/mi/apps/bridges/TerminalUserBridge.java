@@ -39,8 +39,8 @@ public class TerminalUserBridge implements UserBridge {
                 throw new IllegalArgumentException();
             }
 
-            from = ChessTranslator.AlgebraicToLERF(squares[0]);
-            to = ChessTranslator.AlgebraicToLERF(squares[1]);
+            from = ChessTranslator.algebraicPosToLERF(squares[0]);
+            to = ChessTranslator.algebraicPosToLERF(squares[1]);
         }catch (IllegalArgumentException e){
             return null;
         }
