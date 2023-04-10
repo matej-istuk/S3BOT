@@ -1,6 +1,7 @@
 package hr.mi.chess.player.ai;
 
 import hr.mi.chess.algorithm.GameStateSearch;
+import hr.mi.chess.algorithm.SearchEndCondition;
 import hr.mi.chess.evaluation.SimplePlusEvaluationFunction;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
@@ -19,6 +20,8 @@ public class PlayerAlan implements Player {
 
     @Override
     public Move requestMove(BoardState boardState) {
-        return (new GameStateSearch(new SimplePlusEvaluationFunction())).getBestMove(boardState, 7);
+        SearchEndCondition searchEndCondition = new SearchEndCondition();
+        searchEndCondition.setMaxDepth(7);
+        return (new GameStateSearch(new SimplePlusEvaluationFunction())).getBestMove(boardState, searchEndCondition);
     }
 }

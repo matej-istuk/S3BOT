@@ -8,18 +8,17 @@ import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
 import hr.mi.chess.movegen.LegalMoveGenerator;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 public class GameStateSearch {
     private final EvaluationFunction evaluationFunction;
     private SearchInfo searchInfo;
     //private static final MoveComparator moveComparator = new MoveComparator();
-    private int statesSearched;
+    private long statesSearched;
     private int quiescenceStatesSearched;
-    private int searchPly;
+    private long searchStartTime;
+    private SearchEndCondition searchEndCondition;
 
     public GameStateSearch(EvaluationFunction evaluationFunction) {
         this.evaluationFunction = evaluationFunction;
@@ -27,24 +26,45 @@ public class GameStateSearch {
 
 
 
-    public Move getBestMove(BoardState boardState, int searchPly){
+    public Move getBestMove(BoardState boardState, SearchEndCondition searchEndCondition){
         this.searchInfo = new SearchInfo();
-        this.searchPly = searchPly;
-        long searchStartTime = System.currentTimeMillis();
-        statesSearched = 0;
-        quiescenceStatesSearched = 0;
-        Move bestMove = getValueRec(boardState, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, boardState.getActiveColour() == ChessConstants.WHITE ? 1 : -1).move;
-        double totalTime = System.currentTimeMillis() - searchStartTime;
-        System.out.printf("Standard: %d%nQuiescence: %d%nTotal: %d%nTime spent: %.2fs%nNodes per second: %.0f%n%n", statesSearched, quiescenceStatesSearched, statesSearched + quiescenceStatesSearched, totalTime/1000, 1000L * (statesSearched + quiescenceStatesSearched) / totalTime);
+        this.searchEndCondition = searchEndCondition;
+        this.searchStartTime = System.currentTimeMillis();
+
+        Move bestMove = LegalMoveGenerator.generateMoves(boardState).get(0);
+        for (int i = 1; i < searchEndCondition.getMaxDepth(); i++) {
+            statesSearched = 0;
+            quiescenceStatesSearched = 0;
+            Move bestMoveCandidate = getBestMoveRec(boardState, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, boardState.getActiveColour() == ChessConstants.WHITE ? 1 : -1).move;
+
+            if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()) {
+                break;
+            }
+
+            if ((System.currentTimeMillis() - searchStartTime) > searchEndCondition.getMaxTime() || searchEndCondition.isManualStop()) {
+                break;
+            }
+            bestMove = bestMoveCandidate;
+        }
+
         return bestMove;
     }
 
 
-    private MoveValuePair getValueRec(BoardState boardState, int ply, double alpha, double beta, int colour){
-        statesSearched++;
+    private MoveValuePair getBestMoveRec(BoardState boardState, int ply, double alpha, double beta, int colour){
 
-        if (ply >= searchPly) {
+        if (ply >= searchEndCondition.getMaxDepth()) {
             return new MoveValuePair(null, getQuiescenceEvaluation(boardState, alpha, beta, colour));
+        }
+
+        if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()){
+            return new MoveValuePair(null, 0);
+        }
+
+        if (((statesSearched + quiescenceStatesSearched) & 1023) == 0){
+            if ((System.currentTimeMillis() - searchStartTime) > searchEndCondition.getMaxTime() || searchEndCondition.isManualStop()){
+                return new MoveValuePair(null, 0);
+            }
         }
 
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
@@ -52,13 +72,14 @@ public class GameStateSearch {
         if (moves.size() == 0)
             return new MoveValuePair(null,-colour * Double.MAX_VALUE);
 
+        statesSearched++;
         orderMoves(moves, ply, boardState.getLastMovedPieceIndex());
         double value = -Double.MAX_VALUE;
         Move bestMove = null;
 
         for (Move move: moves){
             boardState.makeMove(move);
-            MoveValuePair result = this.getValueRec(boardState, ply + 1, -beta, -alpha, -colour);
+            MoveValuePair result = this.getBestMoveRec(boardState, ply + 1, -beta, -alpha, -colour);
             if (-result.value > value){
                 value = -result.value;
                 bestMove = move;

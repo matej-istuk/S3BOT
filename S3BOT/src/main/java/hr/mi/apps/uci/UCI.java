@@ -23,7 +23,7 @@ public class UCI {
             Map.entry(Commands.SET_OPTION.getText(), SetOptionFunc::new),
             Map.entry(Commands.REGISTER.getText(), RegisterFunc::new),
             Map.entry(Commands.UCI_NEW_GAME.getText(), UciNewGameFunc::new),
-            Map.entry(Commands.POSITION.getText(), PositionFunc::new),
+            Map.entry(Commands.POSITION.getText(), PositionFunc::new)
 
             );
 
@@ -80,7 +80,7 @@ public class UCI {
         }
 
         UciTask task = switch (command) {
-            case "uci" -> new UciFunc(arguments);
+            case "uci" -> new UciFunc(arguments, environment);
             default -> null;
         };
 
