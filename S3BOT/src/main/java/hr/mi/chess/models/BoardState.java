@@ -136,6 +136,8 @@ public class BoardState {
      * @param fen FEN string
      */
     public void loadFen(String fen) {
+        Arrays.fill(bitboards, 0L);
+
         String[] fenArr = fen.split(" ");
         if(fenArr.length != 6) {
             throw new IllegalArgumentException();

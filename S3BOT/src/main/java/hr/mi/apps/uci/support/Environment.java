@@ -13,5 +13,4 @@ public class Environment {
         return boardstate;
     }
 
-
 }

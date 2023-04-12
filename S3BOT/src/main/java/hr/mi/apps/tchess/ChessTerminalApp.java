@@ -23,7 +23,7 @@ public class ChessTerminalApp {
         playGame();
     }
 
-    private void playGame(){
+    private static void playGame(){
         Player whitePlayer = new PlayerAlan(5);
         Player blackPlayer = new HumanPlayer(new TerminalUserBridge());
 
@@ -51,13 +51,13 @@ public class ChessTerminalApp {
         }
     }
 
-    private void drawGame(BoardState boardState){
+    public static void drawGame(BoardState boardState){
         System.out.printf("Currently active player: %s%n", boardState.getActiveColour() == ChessConstants.WHITE ? "white" : "black");
         drawBoard(boardState.getBitboards()).forEach(System.out::println);
         System.out.println();
     }
 
-    private List<String> drawBoard(long[] bitboards){
+    private static List<String> drawBoard(long[] bitboards){
         char[][] board = getBoard(bitboards);
         List<String> boardVisual = new ArrayList<>();
         boardVisual.add(ROW_SEPARATOR);
@@ -84,7 +84,7 @@ public class ChessTerminalApp {
      * Returns a matrix representation of the board where the pieces are characters as defined by the <code>BoardState</code> class.
      * @return a matrix representation of the board
      */
-    private char[][] getBoard(long[] bitboards){
+    private static char[][] getBoard(long[] bitboards){
         char[][] charBoard = new char[8][8];
         Arrays.stream(charBoard).forEach(o -> Arrays.fill(o, ' '));
 

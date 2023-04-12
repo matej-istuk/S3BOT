@@ -24,14 +24,17 @@ public class PositionFunc extends UciTask {
         }
         else {
             try {
-                environment.getBoardstate().loadFen(arguments[0]);
+                if (arguments.length < 6) {
+                    throw new IllegalArgumentException();
+                }
+                environment.getBoardstate().loadFen(String.format("%s %s %s %s %s %s", arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]));
             } catch (Exception e) {
                 environment.getBoardstate().loadStartingPosition();
                 return new String[] {"Received string not fen, board set to starting position"};
             }
         }
 
-        for (int i = 1; i < arguments.length; i++) {
+        for (int i = 6; i < arguments.length; i++) {
             try {
                 environment.getBoardstate().makeMove(ChessTranslator.algebraicToMove(arguments[i], environment.getBoardstate()));
             } catch (IllegalStateException ignored){}

@@ -15,6 +15,29 @@ public class ChessTranslator {
         return (algebraicPos.charAt(0) - 'a') + (algebraicPos.charAt(1) - '1') * 8;
     }
 
+    public static String LERFToAlgebraicPos(int lerf){
+        if (!(lerf <= 63 && lerf >= 0))
+            throw new IllegalArgumentException();
+
+        return String.format("%c%d",'a' + lerf%8, lerf/8 + 1);
+    }
+
+    public static String moveToAlgebraic(Move move){
+        String promoPiece = "";
+        if (move.isPromotion()) {
+            promoPiece = switch (move.getFlags() & 3) {
+                case 0 -> "r";
+                case 1 -> "n";
+                case 2 -> "b";
+                case 3 -> "q";
+                default -> throw new IllegalStateException("Unexpected value: " + (move.getFlags() & 3));
+            };
+        }
+
+        return String.format("%s%s%s", LERFToAlgebraicPos(move.getFrom()), LERFToAlgebraicPos(move.getTo()), promoPiece);
+    }
+
+
     public static Move algebraicToMove(String algebraicNotation, BoardState boardState) throws IllegalStateException {
         if (!algebraicNotation.matches("(([a-h]|[A-H])[1-8]){2}([rnbq]|[RNBQ])?"))
             throw new IllegalArgumentException();

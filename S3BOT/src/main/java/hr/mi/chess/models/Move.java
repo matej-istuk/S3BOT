@@ -1,5 +1,7 @@
 package hr.mi.chess.models;
 
+import hr.mi.chess.util.ChessTranslator;
+
 /**
  * Represents a chess move
  *
@@ -278,5 +280,10 @@ public class Move {
         result = 31 * result + to;
         result = 31 * result + flags;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return ChessTranslator.moveToAlgebraic(this);
     }
 }

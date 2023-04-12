@@ -21,7 +21,7 @@ public class PlayerAlan implements Player {
     @Override
     public Move requestMove(BoardState boardState) {
         SearchEndCondition searchEndCondition = new SearchEndCondition();
-        searchEndCondition.setMaxDepth(7);
+        searchEndCondition.setMaxTime(10000);
         return (new GameStateSearch(new SimplePlusEvaluationFunction())).getBestMove(boardState, searchEndCondition);
     }
 }

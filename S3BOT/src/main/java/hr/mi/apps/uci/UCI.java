@@ -23,8 +23,10 @@ public class UCI {
             Map.entry(Commands.SET_OPTION.getText(), SetOptionFunc::new),
             Map.entry(Commands.REGISTER.getText(), RegisterFunc::new),
             Map.entry(Commands.UCI_NEW_GAME.getText(), UciNewGameFunc::new),
-            Map.entry(Commands.POSITION.getText(), PositionFunc::new)
-
+            Map.entry(Commands.POSITION.getText(), PositionFunc::new),
+            Map.entry(Commands.GO.getText(), GoFunc::new),
+            Map.entry(Commands.STOP.getText(), StopFunc::new),
+            Map.entry(Commands.PONDER_HIT.getText(), PonderHitFunc::new)
             );
 
     static BlockingQueue<UciTask> workQueue = new LinkedBlockingQueue<>();
@@ -65,7 +67,7 @@ public class UCI {
         } catch (Exception e) {
             while (true) {
                 try {
-                    outputQueue.put("Something went wrong while executing task.");
+                    outputQueue.put("Something went wrong while executing task.\n" + Arrays.toString(e.getStackTrace()));
                     break;
                 } catch (InterruptedException ignored) {
                 }
@@ -78,13 +80,7 @@ public class UCI {
             isOn = false;
             return;
         }
-
-        UciTask task = switch (command) {
-            case "uci" -> new UciFunc(arguments, environment);
-            default -> null;
-        };
-
-        if (task == null) {
+        if (!commandMap.containsKey(command)) {
             while (true) {
                 try {
                     outputQueue.put(String.format("Unknown command: '%s'.", command));
@@ -93,6 +89,8 @@ public class UCI {
                 }
             }
         }
+
+        UciTask task = commandMap.get(command).apply(arguments, environment);
 
         if (task.isLongTask()){
             while (true) {

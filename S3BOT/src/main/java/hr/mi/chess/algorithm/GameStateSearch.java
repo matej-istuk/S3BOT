@@ -35,7 +35,7 @@ public class GameStateSearch {
         for (int i = 1; i < searchEndCondition.getMaxDepth(); i++) {
             statesSearched = 0;
             quiescenceStatesSearched = 0;
-            Move bestMoveCandidate = getBestMoveRec(boardState, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, boardState.getActiveColour() == ChessConstants.WHITE ? 1 : -1).move;
+            Move bestMoveCandidate = getBestMoveRec(boardState, 0, i, Integer.MIN_VALUE, Integer.MAX_VALUE, boardState.getActiveColour() == ChessConstants.WHITE ? 1 : -1).move;
 
             if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()) {
                 break;
@@ -51,9 +51,9 @@ public class GameStateSearch {
     }
 
 
-    private MoveValuePair getBestMoveRec(BoardState boardState, int ply, double alpha, double beta, int colour){
+    private MoveValuePair getBestMoveRec(BoardState boardState, int ply, int searchDepth, double alpha, double beta, int colour){
 
-        if (ply >= searchEndCondition.getMaxDepth()) {
+        if (ply >= searchDepth) {
             return new MoveValuePair(null, getQuiescenceEvaluation(boardState, alpha, beta, colour));
         }
 
@@ -70,7 +70,8 @@ public class GameStateSearch {
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
 
         if (moves.size() == 0)
-            return new MoveValuePair(null,-colour * Double.MAX_VALUE);
+            return new MoveValuePair(null,colour * Double.MAX_VALUE);
+
 
         statesSearched++;
         orderMoves(moves, ply, boardState.getLastMovedPieceIndex());
@@ -79,7 +80,7 @@ public class GameStateSearch {
 
         for (Move move: moves){
             boardState.makeMove(move);
-            MoveValuePair result = this.getBestMoveRec(boardState, ply + 1, -beta, -alpha, -colour);
+            MoveValuePair result = this.getBestMoveRec(boardState, ply + 1, searchDepth, -beta, -alpha, -colour);
             if (-result.value > value){
                 value = -result.value;
                 bestMove = move;
@@ -110,6 +111,9 @@ public class GameStateSearch {
         }
 
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
+        if (moves.isEmpty()) {
+            return -colour*Double.MAX_VALUE;
+        }
         moves.removeIf(m -> !m.isCapture());
         orderMoves(moves, -1, boardState.getLastMovedPieceIndex());
         double value;
