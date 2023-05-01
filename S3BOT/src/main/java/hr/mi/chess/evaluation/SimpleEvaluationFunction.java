@@ -5,6 +5,7 @@ import hr.mi.chess.models.BoardState;
 
 public class SimpleEvaluationFunction implements EvaluationFunction{
 
+    private boolean perspective;
     private static final int[] pieceValues = {1, 3, 3, 5, 9, 0};
 
     /**
@@ -15,8 +16,13 @@ public class SimpleEvaluationFunction implements EvaluationFunction{
      */
     @Override
     public int evaluate(BoardState boardState) {
-        return calculateBoardValueByColour(boardState.getBitboards(), ChessConstants.WHITE)
-                - calculateBoardValueByColour(boardState.getBitboards(), ChessConstants.BLACK);
+        return (perspective == ChessConstants.WHITE ? 1 : -1) * (calculateBoardValueByColour(boardState.getBitboards(), ChessConstants.WHITE)
+                - calculateBoardValueByColour(boardState.getBitboards(), ChessConstants.BLACK));
+    }
+
+    @Override
+    public void setPerspective(boolean perspective) {
+        this.perspective = perspective;
     }
 
     private int calculateBoardValueByColour(long[] bitboards, boolean colour){

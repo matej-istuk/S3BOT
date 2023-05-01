@@ -131,6 +131,10 @@ public class BoardState {
         return enPassantTarget;
     }
 
+    public Stack<Move> getPreviousMoves() {
+        return previousMoves;
+    }
+
     /**
      * Parses the received string as FEN, loading the represented chess board state into itself.
      * @param fen FEN string

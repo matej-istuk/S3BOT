@@ -12,10 +12,8 @@ import java.util.List;
 
 public class PlayerAlan implements Player {
 
-    private int depth;
 
-    public PlayerAlan(int depth) {
-        this.depth = depth;
+    public PlayerAlan() {
     }
 
     @Override

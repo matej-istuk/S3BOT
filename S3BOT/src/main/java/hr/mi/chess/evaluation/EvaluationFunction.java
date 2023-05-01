@@ -15,4 +15,6 @@ public interface EvaluationFunction {
      * @return a double representing the absolute "goodness" of the board-state
      */
     int evaluate(BoardState boardState);
+
+    void setPerspective(boolean perspective);
 }

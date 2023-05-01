@@ -3,6 +3,7 @@ package hr.mi.apps.jchess.components;
 import hr.mi.chess.game.ChessGame;
 import hr.mi.chess.game.GameStateEnum;
 import hr.mi.chess.models.ChessPiece;
+import hr.mi.chess.models.Move;
 import hr.mi.chess.util.BoardFunctions;
 
 import javax.swing.*;
@@ -50,7 +51,7 @@ public class JChessBoard extends JComponent {
                 do {
                     gameState = game.advance();
                 } while (gameState == GameStateEnum.IN_PROGRESS);
-
+                JOptionPane.showConfirmDialog(JChessBoard.this, "Game result: " + gameState.name());
                 return gameState;
             }
         };
@@ -62,14 +63,24 @@ public class JChessBoard extends JComponent {
     private void addTile(int row, int column){
         JChessTile tile = new JChessTile(8*row + column);
         tile.setBorder(BorderFactory.createEmptyBorder());
-        tile.setBackground((row % 2 == column % 2) ? new Color(207, 138, 70) : new Color(0xFDCC9D));
+        setTileColour(tile);
         this.add(tile);
         this.tiles[8*row+column] = tile;
         tile.addActionListener(o -> fireListeners(tile.getLERFIndex()));
     }
 
     private void repaintTiles(){
+        int moveFrom = -1;
+        int moveTo = -1;
+        if (game.getBoardState().getPreviousMoves().size() != 0){
+            Move previousMove = game.getBoardState().getPreviousMoves().get(game.getBoardState().getPreviousMoves().size()-1);
+            moveFrom = previousMove.getFrom();
+            moveTo = previousMove.getTo();
+        }
+
         for (JChessTile tile: tiles){
+            setTileColour(tile, tile.getLERFIndex() == moveTo || tile.getLERFIndex() == moveFrom);
+
             ChessPiece piece = BoardFunctions.getPieceByBitboard(game.getBoardState().getBitboards(), (1L << tile.getLERFIndex()));
             tile.setVisible(true);
 
@@ -79,6 +90,20 @@ public class JChessBoard extends JComponent {
             else {
                 tile.drawPiece(piece);
             }
+        }
+    }
+
+    private void setTileColour(JChessTile tile){
+        setTileColour(tile, false);
+    }
+
+    private void setTileColour(JChessTile tile, boolean isHighlighted){
+        int row = tile.getLERFIndex()/8;
+        int column = tile.getLERFIndex()%8;
+        if (isHighlighted){
+            tile.setBackground((row % 2 == column % 2) ? new Color(0xAAA23A) : new Color(0xCDD26A));
+        } else {
+            tile.setBackground((row % 2 == column % 2) ? new Color(0xB58863) : new Color(0xF0D9B5));
         }
     }
 

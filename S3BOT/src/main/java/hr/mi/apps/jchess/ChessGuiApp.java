@@ -21,8 +21,8 @@ public class ChessGuiApp extends JFrame {
     public ChessGuiApp() {
         BlockingQueue<FromToPair> blockingQueue = new ArrayBlockingQueue<>(1);
 
-        Player whitePlayer = new HumanPlayer(new GUIUserBridge(blockingQueue));
-        Player blackPlayer = new PlayerAlan(5);
+        Player blackPlayer = new HumanPlayer(new GUIUserBridge(blockingQueue));
+        Player whitePlayer = new PlayerAlan();
         game = new ChessGame(whitePlayer, blackPlayer);
         InputManager inputManager = new InputManager(blockingQueue, game.getBoardState());
 

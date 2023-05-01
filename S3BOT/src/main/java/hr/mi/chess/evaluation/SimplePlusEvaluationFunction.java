@@ -13,6 +13,7 @@ import hr.mi.chess.util.BoardFunctions;
  */
 public class SimplePlusEvaluationFunction implements EvaluationFunction{
 
+    private boolean perspective;
     private final int[] pieceValues = {
             100,
             500,
@@ -166,8 +167,13 @@ public class SimplePlusEvaluationFunction implements EvaluationFunction{
      */
     @Override
     public int evaluate(BoardState boardState) {
-        return calculateValueByColour(boardState, ChessConstants.WHITE) -
-                calculateValueByColour(boardState, ChessConstants.BLACK);
+        return (perspective == ChessConstants.WHITE ? 1 : -1) * (calculateValueByColour(boardState, ChessConstants.WHITE) -
+                calculateValueByColour(boardState, ChessConstants.BLACK));
+    }
+
+    @Override
+    public void setPerspective(boolean perspective) {
+        this.perspective = perspective;
     }
 
     private int calculateValueByColour(BoardState boardState, boolean colour){

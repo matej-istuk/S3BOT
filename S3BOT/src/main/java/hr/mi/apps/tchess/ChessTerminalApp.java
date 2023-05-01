@@ -24,7 +24,7 @@ public class ChessTerminalApp {
     }
 
     private static void playGame(){
-        Player whitePlayer = new PlayerAlan(5);
+        Player whitePlayer = new PlayerAlan();
         Player blackPlayer = new HumanPlayer(new TerminalUserBridge());
 
 
