@@ -8,6 +8,14 @@ import hr.mi.chess.util.BoardFunctions;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,10 +56,27 @@ public class JChessBoard extends JComponent {
             @Override
             protected GameStateEnum doInBackground() throws Exception {
                 GameStateEnum gameState;
+
+                LocalDateTime now = LocalDateTime.now();
+                String startTime = String.format("%d-%d-%d_%d:%d:%d", now.getYear(), now.getMonth().getValue(), now.getDayOfMonth(), now.getHour(), now.getMinute(), now.getSecond());
+
                 do {
                     gameState = game.advance();
                 } while (gameState == GameStateEnum.IN_PROGRESS);
-                JOptionPane.showConfirmDialog(JChessBoard.this, "Game result: " + gameState.name());
+
+                String error = "";
+                Path gamePath = Path.of("games" + File.separator + "chess_game_" + startTime);
+                gamePath.getParent().toFile().mkdirs();
+                try (BufferedWriter writer = Files.newBufferedWriter(gamePath, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+                    for (Move move: game.getBoardState().getPreviousMoves()){
+                        writer.write(move.toString() + " ");
+                    }
+                } catch (Exception e) {
+                    error = e.toString();
+                }
+
+                JOptionPane.showMessageDialog(JChessBoard.this, "Game result: " + gameState.name() + error);
+
                 return gameState;
             }
         };

@@ -31,14 +31,13 @@ public class GameStateSearch {
         this.searchInfo = new SearchInfo();
         this.searchEndCondition = searchEndCondition;
         this.searchStartTime = System.currentTimeMillis();
-
         evaluationFunction.setPerspective(boardState.getActiveColour());
         Move bestMove = LegalMoveGenerator.generateMoves(boardState).get(0);
         for (int i = 1; i < searchEndCondition.getMaxDepth(); i++) {
             statesSearched = 0;
             quiescenceStatesSearched = 0;
-            Move bestMoveCandidate = getBestMoveRec(boardState, 0, i, Integer.MIN_VALUE, Integer.MAX_VALUE, 1).move;
-
+            MoveValuePair mvp = getBestMoveRec(boardState, 0, i, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+            Move bestMoveCandidate = mvp.move;
             if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()) {
                 break;
             }
@@ -48,7 +47,6 @@ public class GameStateSearch {
             }
             bestMove = bestMoveCandidate;
         }
-
         return bestMove;
     }
 
@@ -72,7 +70,7 @@ public class GameStateSearch {
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
 
         if (moves.size() == 0) {
-            return new MoveValuePair(null, level * evaluateNoMoveBoard(boardState));
+            return new MoveValuePair(null, -evaluateNoMoveBoard(boardState));
         }
 
         statesSearched++;
@@ -102,7 +100,7 @@ public class GameStateSearch {
 
     private double getQuiescenceEvaluation(BoardState boardState, double alpha, double beta, int level) {
         quiescenceStatesSearched++;
-        double standingPat = level * evaluationFunction.evaluate(boardState);
+        double standingPat = level*evaluationFunction.evaluate(boardState);
 
         if (standingPat >= beta) {
             return beta;
@@ -114,7 +112,7 @@ public class GameStateSearch {
 
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
         if (moves.isEmpty()) {
-            return -level*evaluateNoMoveBoard(boardState);
+            return -evaluateNoMoveBoard(boardState);
         }
         moves.removeIf(m -> !m.isCapture());
         orderMoves(moves, -1, boardState.getLastMovedPieceIndex());
@@ -157,8 +155,8 @@ public class GameStateSearch {
     }
 
     private double evaluateNoMoveBoard(BoardState boardState) {
-        if ((MoveUtil.getKingDangerSquares(boardState.getBitboards(), boardState.getActiveColour()) & boardState.getBitboards()[boardState.getActiveColour() == ChessConstants.WHITE ? 5 : 11]) != 0L){
-            return Double.MAX_VALUE;
+        if ((MoveUtil.getKingDangerSquares(boardState.getBitboards(), boardState.getActiveColour()) & boardState.getBitboards()[(boardState.getActiveColour() == ChessConstants.WHITE) ? 5 : 11]) != 0L){
+            return Integer.MAX_VALUE;
         }
         return 0;
     }
