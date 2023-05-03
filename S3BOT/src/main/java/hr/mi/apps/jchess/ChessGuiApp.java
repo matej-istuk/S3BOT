@@ -64,7 +64,6 @@ public class ChessGuiApp extends JFrame {
         chessBoard.addListener(inputManager::tileSelected);
     }
 
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new ChessGuiApp().setVisible(true));
     }

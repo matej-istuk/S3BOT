@@ -12,7 +12,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class UCI {
     private static final Environment environment = new Environment();

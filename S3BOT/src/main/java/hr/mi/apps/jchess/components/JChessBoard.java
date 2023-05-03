@@ -61,6 +61,7 @@ public class JChessBoard extends JComponent {
                 String startTime = String.format("%d-%d-%d_%d:%d:%d", now.getYear(), now.getMonth().getValue(), now.getDayOfMonth(), now.getHour(), now.getMinute(), now.getSecond());
 
                 do {
+                    System.out.println(game.getBoardState().getZobristHash());
                     gameState = game.advance();
                 } while (gameState == GameStateEnum.IN_PROGRESS);
 

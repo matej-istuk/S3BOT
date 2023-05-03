@@ -1,6 +1,7 @@
 package hr.mi.chess.models;
 
 import hr.mi.chess.constants.ChessBoardConstants;
+import hr.mi.chess.models.support.ZobristNumbers;
 import hr.mi.chess.util.ChessTranslator;
 import hr.mi.chess.constants.ChessConstants;
 import hr.mi.chess.constants.ChessPieceConstants;
@@ -33,6 +34,7 @@ public class BoardState {
     private boolean activeColour;
     private int enPassantTarget;
     private final Stack<Move> previousMoves;
+    private long zobristHash = 0;
 
     /**
      * Creates the starting board-state of a standard chess game.
@@ -136,6 +138,14 @@ public class BoardState {
     }
 
     /**
+     * Returns the zobrist hash of the board-state.
+     * @return long hash
+     */
+    public long getZobristHash() {
+        return zobristHash;
+    }
+
+    /**
      * Parses the received string as FEN, loading the represented chess board state into itself.
      * @param fen FEN string
      */
@@ -191,6 +201,8 @@ public class BoardState {
         fullMoves = Integer.parseInt(fenArr[5]);
         lastMovedPieceIndex = -1;
         previousMoves.clear();
+
+        calculateZobrist();
     }
 
     public void loadStartingPosition(){
@@ -408,9 +420,11 @@ public class BoardState {
         move.setOldHalfMoveClock(halfMoveClock);
         move.setOldActiveColour(activeColour);
         move.setOldEnPassantTarget(enPassantTarget);
+
         //resolve the move
-        bitboards[move.getPiece()] = bitboards[move.getPiece()] & ~(1L << move.getFrom());
-        bitboards[move.getPiece()] = bitboards[move.getPiece()] | (1L << move.getTo());
+        bitboardsRemovePiece(move.getPiece(), move.getFrom());
+        bitboardsAddPiece(move.getPiece(), move.getTo());
+
         //clears en passant targets
         enPassantTarget = -1;
 
@@ -442,85 +456,68 @@ public class BoardState {
                     enPassantTarget = move.getTo() - 8;
                 else
                     enPassantTarget = move.getTo() + 8;
+
+                //zobrist set en passant
+                zobristHash ^= ZobristNumbers.getEnPassant(enPassantTarget%8);
             }
             //king castle
             case 2 -> {
                 //have to move the rooks to their new positions
                 if (activeColour == ChessConstants.WHITE) {
                     //White king-side rook on the bitboard index 1 7th digit
-                    bitboards[1] = bitboards[1] & ~(1L << 7);
-                    bitboards[1] = bitboards[1] | (1L << 5);
+                    bitboardsRemovePiece(1, 7);
+                    bitboardsAddPiece(1, 5);
                 } else {
                     //Black king-side rook on the bitboard index 7 63rd digit
-                    bitboards[7] = bitboards[7] & ~(1L << 63);
-                    bitboards[7] = bitboards[7] | (1L << 61);
+                    bitboardsRemovePiece(7, 63);
+                    bitboardsAddPiece(7, 61);
                 }
             }
             //queen castle
             case 3 -> {
                 if (activeColour == ChessConstants.WHITE) {
                     //White queen-side rook on the bitboard index 1 0th digit
-                    bitboards[1] = bitboards[1] & ~(1L);
-                    bitboards[1] = bitboards[1] | (1L << 3);
+                    bitboardsRemovePiece(1, 0);
+                    bitboardsAddPiece(1, 3);
                 } else {
                     //Black queen-side rook on the bitboard index 7 56th digit
-                    bitboards[7] = bitboards[7] & ~(1L << 56);
-                    bitboards[7] = bitboards[7] | (1L << 59);
+                    bitboardsRemovePiece(7, 56);
+                    bitboardsAddPiece(7, 59);
                 }
             }
             //ep-capture
             case 5 -> {
                 if (activeColour == ChessConstants.WHITE) {
                     //Black pawns are on bitboard index 6
-                    bitboards[6] = bitboards[6] & ~(1L << (move.getTo() - 8));
-                    move.setCapturedPieceIndex(6);
+                    bitboardsRemovePiece(6, move.getTo() - 8);
                 } else {
                     //White pawns are on bitboard index 0
-                    bitboards[0] = bitboards[0] & ~(1L << (move.getTo() + 8));
-                    move.setCapturedPieceIndex(0);
+                    bitboardsRemovePiece(0, move.getTo() + 8);
                 }
             }
             //the other cases share a lot of functionality, so they're bundled together
             default -> {
                 //the move is a capture if the third flag is active
                 if ((move.getFlags() & CAPTURE_FLAG) != 0){
-                    if (activeColour == ChessConstants.WHITE) {
-                        for (int i = 6; i < 11; i++) {
-                            if ((bitboards[i] & (1L << move.getTo())) != 0) {
-                                bitboards[i] = bitboards[i] & ~(1L << move.getTo());
-                                move.setCapturedPieceIndex(i);
-                            }
-                        }
-                    } else {
-                        for (int i = 0; i < 5; i++) {
-                            if ((bitboards[i] & (1L << move.getTo())) != 0) {
-                                bitboards[i] = bitboards[i] & ~(1L << move.getTo());
-                                move.setCapturedPieceIndex(i);
-                            }
-                        }
+                    if (move.getCapturedPieceIndex() == -1){
+                        System.out.println("adas");
                     }
+                    bitboardsRemovePiece(move.getCapturedPieceIndex(), move.getTo());
                 }
 
                 //the move is a promotion if the fourth flag is active
                 if ((move.getFlags() & PROMOTION_FLAG) != 0){
-                    if (activeColour == ChessConstants.WHITE) {
-                        //White pawns are on bitboard index 0
-                        bitboards[0] = bitboards[0] & ~(1L << move.getTo());
-                        //possible because the same ordering is used in the bitboards and flags
-                        int promotedPiece = 1 + (move.getFlags() & 3);
-                        bitboards[promotedPiece] = bitboards[promotedPiece] | (1L << move.getTo());
-                    } else {
-                        //Black pawns are on bitboard index 6
-                        bitboards[6] = bitboards[6] & ~(1L << move.getTo());
-                        //possible because the same ordering is used in the bitboards and flags
-                        int promotedPiece = 7 + (move.getFlags() & 3);
-                        bitboards[promotedPiece] = bitboards[promotedPiece] | (1L << move.getTo());
-                    }
+                    bitboardsRemovePiece(move.getPiece(), move.getTo());
+                    //possible because the same ordering is used in the bitboards and flags
+                    bitboardsAddPiece(move.getPiece() + (move.getFlags() & 3) + 1, move.getTo());
                 }
             }
         }
+
         //change active player
         activeColour = !activeColour;
+
+        zobristChangeMoveSpecial(move);
 
         //push the move onto the stack
         previousMoves.push(move);
@@ -540,6 +537,9 @@ public class BoardState {
         //set last moved piece index
         this.lastMovedPieceIndex = move.getTo();
 
+        zobristChangeMoveSpecial(move);
+
+
         this.whiteKingSideCastling = move.getOldWhiteKingSideCastling();
         this.whiteQueenSideCastling = move.getOldWhiteQueenSideCastling();
         this.blackKingSideCastling = move.getOldBlackKingSideCastling();
@@ -550,13 +550,13 @@ public class BoardState {
         this.enPassantTarget = move.getOldEnPassantTarget();
 
         //undo move
-        bitboards[move.getPiece()] &= ~(1L << move.getTo());
-        bitboards[move.getPiece()] |= (1L << move.getFrom());
+        bitboardsRemovePiece(move.getPiece(), move.getTo());
+        bitboardsAddPiece(move.getPiece(), move.getFrom());
 
         //undo promotion
         if ((move.getFlags() & PROMOTION_FLAG) != 0){
             int promotedPiece = (activeColour == ChessConstants.WHITE ? 1 : 7)  + (move.getFlags() & 3);
-            bitboards[promotedPiece] &= ~(1L << move.getTo());
+            bitboardsRemovePiece(promotedPiece, move.getTo());
         }
 
         //undo king castle
@@ -564,12 +564,12 @@ public class BoardState {
             //have to move the rooks to their new positions
             if (activeColour == ChessConstants.WHITE) {
                 //White king-side rook on the bitboard index 1 7th digit
-                bitboards[1] |= (1L << 7);
-                bitboards[1] &= ~(1L << 5);
+                bitboardsRemovePiece(1, 5);
+                bitboardsAddPiece(1, 7);
             } else {
                 //Black king-side rook on the bitboard index 7 63rd digit
-                bitboards[7] |= (1L << 63);
-                bitboards[7] &= ~(1L << 61);
+                bitboardsRemovePiece(7, 61);
+                bitboardsAddPiece(7, 63);
             }
         }
 
@@ -578,12 +578,12 @@ public class BoardState {
             //have to move the rooks to their new positions
             if (activeColour == ChessConstants.WHITE) {
                 //White queen-side rook on the bitboard index 1 0th digit
-                bitboards[1] |= (1L);
-                bitboards[1] &= ~(1L << 3);
+                bitboardsRemovePiece(1, 3);
+                bitboardsAddPiece(1, 0);
             } else {
                 //Black queen-side rook on the bitboard index 7 56th digit
-                bitboards[7] |= (1L << 56);
-                bitboards[7] &= ~(1L << 59);
+                bitboardsRemovePiece(7, 59);
+                bitboardsAddPiece(7, 56);
             }
         }
 
@@ -599,16 +599,74 @@ public class BoardState {
                     epOffset = 8;
                 }
             }
-            if (move.getCapturedPieceIndex() == -1){
-                System.out.println("as");
-            }
 
-            bitboards[move.getCapturedPieceIndex()] |= (1L << move.getTo() + epOffset);
+            bitboardsAddPiece(move.getCapturedPieceIndex(), move.getTo() + epOffset);
         }
+    }
+
+    /**
+     * Changes zobrist castling, colour and ep.
+     * @param move the move being made or unmade
+     */
+    private void zobristChangeMoveSpecial(Move move) {
+        if (activeColour == ChessConstants.BLACK)
+            zobristHash ^= ZobristNumbers.getBlackActive();
+
+        if (move.getOldEnPassantTarget() != -1)
+            zobristHash ^= ZobristNumbers.getEnPassant(move.getOldEnPassantTarget()%8);
+
+        if (enPassantTarget != -1)
+            zobristHash ^= ZobristNumbers.getEnPassant(enPassantTarget%8);
+
+        if (move.getOldWhiteKingSideCastling() != whiteKingSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(0);
+        if (move.getOldWhiteQueenSideCastling() != whiteQueenSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(1);
+        if (move.getOldBlackKingSideCastling() != blackKingSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(2);
+        if (move.getOldBlackQueenSideCastling() != blackQueenSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(3);
+    }
+
+    private void bitboardsAddPiece(int piece, int squareIndex) {
+        bitboards[piece] = bitboards[piece] | (1L << squareIndex);
+        zobristHash ^= ZobristNumbers.getPieceOnTile(piece, squareIndex);
+
+    }
+
+    private void bitboardsRemovePiece(int piece, int squareIndex) {
+        bitboards[piece] = bitboards[piece] & ~(1L << squareIndex);
+        zobristHash ^= ZobristNumbers.getPieceOnTile(piece, squareIndex);
     }
 
     public int getLastMovedPieceIndex() {
         return lastMovedPieceIndex;
+    }
+
+    private void calculateZobrist(){
+        for (int i = 0; i < bitboards.length; i++)
+            for (int j = 0; j < 64; j++)
+                if ((bitboards[i] & (1L<<j)) != 0)
+                    zobristHash ^= ZobristNumbers.getPieceOnTile(i, j);
+
+
+        if (whiteKingSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(0);
+
+        if (whiteQueenSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(1);
+
+        if (blackKingSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(2);
+
+        if (blackQueenSideCastling)
+            zobristHash ^= ZobristNumbers.getCastling(3);
+
+        if (enPassantTarget != -1)
+            zobristHash ^= ZobristNumbers.getEnPassant(enPassantTarget%8);
+
+        if (activeColour == ChessConstants.BLACK)
+            zobristHash ^= ZobristNumbers.getBlackActive();
     }
 
     @Override
