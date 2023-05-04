@@ -51,10 +51,10 @@ public class GameStateSearch {
     }
 
 
-    private MoveValuePair getBestMoveRec(BoardState boardState, int ply, int searchDepth, double alpha, double beta, int level){
+    private MoveValuePair getBestMoveRec(BoardState boardState, int ply, int searchDepth, double alpha, double beta, int colour){
 
         if (ply >= searchDepth) {
-            return new MoveValuePair(null, getQuiescenceEvaluation(boardState, alpha, beta, level));
+            return new MoveValuePair(null, getQuiescenceEvaluation(boardState, ply, alpha, beta, colour));
         }
 
         if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()){
@@ -80,7 +80,7 @@ public class GameStateSearch {
 
         for (Move move: moves){
             boardState.makeMove(move);
-            MoveValuePair result = this.getBestMoveRec(boardState, ply + 1, searchDepth, -beta, -alpha, -level);
+            MoveValuePair result = this.getBestMoveRec(boardState, ply + 1, searchDepth, -beta, -alpha, -colour);
             if (-result.value > value){
                 value = -result.value;
                 bestMove = move;
@@ -98,9 +98,9 @@ public class GameStateSearch {
         return new MoveValuePair(bestMove, value);
     }
 
-    private double getQuiescenceEvaluation(BoardState boardState, double alpha, double beta, int level) {
+    private double getQuiescenceEvaluation(BoardState boardState, int ply, double alpha, double beta, int colour) {
         quiescenceStatesSearched++;
-        double standingPat = level*evaluationFunction.evaluate(boardState);
+        double standingPat = colour*evaluationFunction.evaluate(boardState);
 
         if (standingPat >= beta) {
             return beta;
@@ -120,7 +120,7 @@ public class GameStateSearch {
 
         for (Move move: moves) {
             boardState.makeMove(move);
-            value = -this.getQuiescenceEvaluation(boardState, -beta, -alpha, -level);
+            value = -this.getQuiescenceEvaluation(boardState, ply + 1, -beta, -alpha, -colour);
             boardState.unmakeLastMove();
 
             if (value >= beta){

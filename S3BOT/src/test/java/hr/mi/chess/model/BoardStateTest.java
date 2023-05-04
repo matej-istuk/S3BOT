@@ -3,7 +3,10 @@ package hr.mi.chess.model;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
 import hr.mi.chess.constants.ChessPieceConstants;
+import hr.mi.chess.movegen.LegalMoveGenerator;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -502,4 +505,226 @@ class BoardStateTest {
     }
 
      */
+
+    @Test
+    void testZobrist1(){
+        //two pawn double pushes
+        BoardState boardState = new BoardState();
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 12, 28, 1));
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('p'), 52, 36, 1));
+        boardState.unmakeLastMove();
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist2(){
+        //two pawn by one
+        BoardState boardState = new BoardState();
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 12, 20, 0));
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('p'), 52, 44, 0));
+        boardState.unmakeLastMove();
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist3(){
+        //test capture
+        BoardState boardState = new BoardState("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 28, 35, 4));
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('q'), 59, 35, 4));
+        boardState.unmakeLastMove();
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist4(){
+        //test castle
+        BoardState boardState = new BoardState("rn1qkb1r/ppp1p2p/5np1/3p4/2P1PB2/2NP4/PP2QPPP/R3K2R w KQkq - 0 2");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('K'), 4, 6, 2));
+        assertEquals((new BoardState("rn1qkb1r/ppp1p2p/5np1/3p4/2P1PB2/2NP4/PP2QPPP/R4RK1 b kq - 1 2")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('r'), 63, 62, 0));
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2p/5np1/3p4/2P1PB2/2NP4/PP2QPPP/R4RK1 w q - 2 3")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkb1r/ppp1p2p/5np1/3p4/2P1PB2/2NP4/PP2QPPP/R4RK1 b kq - 1 2")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkb1r/ppp1p2p/5np1/3p4/2P1PB2/2NP4/PP2QPPP/R3K2R w KQkq - 0 2")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist5(){
+        //test castle
+        BoardState boardState = new BoardState("rn1qkb1r/ppp1p2p/6p1/3p2P1/2P1nB2/2NP4/PP2QP1P/R3K2R b KQkq - 0 3");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('p'), 55, 39, 1));
+        assertEquals((new BoardState("rn1qkb1r/ppp1p3/6p1/3p2Pp/2P1nB2/2NP4/PP2QP1P/R3K2R w KQkq h6 0 4")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 38, 47, 5));
+        assertEquals((new BoardState("rn1qkb1r/ppp1p3/6pP/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQkq - 0 4")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkb1r/ppp1p3/6p1/3p2Pp/2P1nB2/2NP4/PP2QP1P/R3K2R w KQkq h6 0 4")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkb1r/ppp1p2p/6p1/3p2P1/2P1nB2/2NP4/PP2QP1P/R3K2R b KQkq - 0 3")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist6(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 63, 8));
+        assertEquals((new BoardState("rn1qk1rR/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist7(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 63, 9));
+        assertEquals((new BoardState("rn1qk1rN/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist8(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 63, 10));
+        assertEquals((new BoardState("rn1qk1rB/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist9(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 63, 11));
+        assertEquals((new BoardState("rn1qk1rQ/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist10(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 62, 12));
+        assertEquals((new BoardState("rn1qk1R1/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist11(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 62, 13));
+        assertEquals((new BoardState("rn1qk1N1/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist12(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 62, 14));
+        assertEquals((new BoardState("rn1qk1B1/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobrist13(){
+        //test promotion
+        BoardState boardState = new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5");
+        long zHash0 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('b'), 61, 54, 0));
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        long zHash1 = boardState.getZobristHash();
+        boardState.makeMove(new Move(ChessPieceConstants.PIECE_INT_MAPPING.get('P'), 55, 62, 15));
+        assertEquals((new BoardState("rn1qk1Q1/ppp1p1b1/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 6")).getZobristHash(), boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qk1r1/ppp1p1bP/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R w KQq - 1 6")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash1, boardState.getZobristHash());
+        boardState.unmakeLastMove();
+        assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
+        assertEquals(zHash0, boardState.getZobristHash());
+    }
 }

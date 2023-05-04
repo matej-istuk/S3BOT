@@ -456,9 +456,6 @@ public class BoardState {
                     enPassantTarget = move.getTo() - 8;
                 else
                     enPassantTarget = move.getTo() + 8;
-
-                //zobrist set en passant
-                zobristHash ^= ZobristNumbers.getEnPassant(enPassantTarget%8);
             }
             //king castle
             case 2 -> {
@@ -487,6 +484,15 @@ public class BoardState {
             }
             //ep-capture
             case 5 -> {
+                //this "if" will run only on tests, move generation sets the captured piece index
+                if (move.getCapturedPieceIndex() == -1) {
+                    if (activeColour == ChessConstants.WHITE) {
+                        move.setCapturedPieceIndex(6);
+                    }
+                    else {
+                        move.setCapturedPieceIndex(0);
+                    }
+                }
                 if (activeColour == ChessConstants.WHITE) {
                     //Black pawns are on bitboard index 6
                     bitboardsRemovePiece(6, move.getTo() - 8);
@@ -499,8 +505,14 @@ public class BoardState {
             default -> {
                 //the move is a capture if the third flag is active
                 if ((move.getFlags() & CAPTURE_FLAG) != 0){
+                    //this "if" will run only on tests, move generation sets the captured piece index
                     if (move.getCapturedPieceIndex() == -1){
-                        System.out.println("adas");
+                        for (int i = ((activeColour == ChessConstants.WHITE) ? 6 : 0); i < ((activeColour == ChessConstants.WHITE) ? 11 : 5); i++){
+                            if ((bitboards[i] & (1L << move.getTo())) != 0){
+                                move.setCapturedPieceIndex(i);
+                                break;
+                            }
+                        }
                     }
                     bitboardsRemovePiece(move.getCapturedPieceIndex(), move.getTo());
                 }
@@ -539,7 +551,6 @@ public class BoardState {
 
         zobristChangeMoveSpecial(move);
 
-
         this.whiteKingSideCastling = move.getOldWhiteKingSideCastling();
         this.whiteQueenSideCastling = move.getOldWhiteQueenSideCastling();
         this.blackKingSideCastling = move.getOldBlackKingSideCastling();
@@ -549,15 +560,19 @@ public class BoardState {
         this.activeColour = move.getOldActiveColour();
         this.enPassantTarget = move.getOldEnPassantTarget();
 
-        //undo move
-        bitboardsRemovePiece(move.getPiece(), move.getTo());
-        bitboardsAddPiece(move.getPiece(), move.getFrom());
-
-        //undo promotion
+        //undo promotion if promotion
         if ((move.getFlags() & PROMOTION_FLAG) != 0){
             int promotedPiece = (activeColour == ChessConstants.WHITE ? 1 : 7)  + (move.getFlags() & 3);
             bitboardsRemovePiece(promotedPiece, move.getTo());
         }
+        //else remove piece as usual
+        else {
+            bitboardsRemovePiece(move.getPiece(), move.getTo());
+        }
+
+        //add piece back
+        bitboardsAddPiece(move.getPiece(), move.getFrom());
+
 
         //undo king castle
         if (move.getFlags() == 2){
@@ -609,8 +624,7 @@ public class BoardState {
      * @param move the move being made or unmade
      */
     private void zobristChangeMoveSpecial(Move move) {
-        if (activeColour == ChessConstants.BLACK)
-            zobristHash ^= ZobristNumbers.getBlackActive();
+        zobristHash ^= ZobristNumbers.getBlackActive();
 
         if (move.getOldEnPassantTarget() != -1)
             zobristHash ^= ZobristNumbers.getEnPassant(move.getOldEnPassantTarget()%8);
@@ -620,10 +634,13 @@ public class BoardState {
 
         if (move.getOldWhiteKingSideCastling() != whiteKingSideCastling)
             zobristHash ^= ZobristNumbers.getCastling(0);
+
         if (move.getOldWhiteQueenSideCastling() != whiteQueenSideCastling)
             zobristHash ^= ZobristNumbers.getCastling(1);
+
         if (move.getOldBlackKingSideCastling() != blackKingSideCastling)
             zobristHash ^= ZobristNumbers.getCastling(2);
+
         if (move.getOldBlackQueenSideCastling() != blackQueenSideCastling)
             zobristHash ^= ZobristNumbers.getCastling(3);
     }
