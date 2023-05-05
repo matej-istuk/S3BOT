@@ -59,7 +59,7 @@ public class ChessGuiApp extends JFrame {
         this.getContentPane().setLayout(new BorderLayout());
         this.setBackground(Color.BLACK);
 
-        JChessBoard chessBoard = new JChessBoard(game);
+        JChessBoard chessBoard = new JChessBoard(game, choseSide == 2);
         this.add(chessBoard);
         chessBoard.addListener(inputManager::tileSelected);
     }

@@ -19,7 +19,7 @@ public class GoFunc extends UciTask {
 
         //searchManager.setMoveTime(5000);
         long sTime = System.currentTimeMillis();
-        searchManager.setDepth(9);
+        searchManager.setDepth(8);
         Move bestmove = searchManager.findBestMove(environment.getBoardstate());
 
         System.out.println(System.currentTimeMillis() - sTime);

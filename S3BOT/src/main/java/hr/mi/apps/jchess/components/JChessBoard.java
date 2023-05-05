@@ -25,14 +25,14 @@ public class JChessBoard extends JComponent {
     private final ChessGame game;
     private final List<TileClickListener> listeners;
 
-    public JChessBoard(ChessGame game){
+    public JChessBoard(ChessGame game, boolean flip){
         this.tiles = new JChessTile[64];
         this.game = game;
         this.listeners = new ArrayList<>();
         this.setLayout(new GridLayout(8, 8, 0, 0));
         for (int i = 7; i >= 0; i--){
             for (int j = 0; j < 8; j++){
-                addTile(i, j);
+                addTile(flip ? 7-i : i, flip ? 7-j : j);
             }
         }
 
