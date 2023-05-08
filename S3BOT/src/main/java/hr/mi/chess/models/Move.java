@@ -257,7 +257,7 @@ public class Move {
      * @return returns true if the move is a promotion.
      */
     public boolean isPromotion() {
-        return flags == 5;
+        return (flags & 8) != 0;
     }
 
     @Override
@@ -284,6 +284,13 @@ public class Move {
 
     @Override
     public String toString() {
-        return ChessTranslator.moveToAlgebraic(this);
+        String promo = switch (flags) {
+                case 8, 12 -> "r";
+                case 9, 13 -> "k";
+                case 10, 14 -> "b";
+                case 11, 15 -> "q";
+                default -> "";
+        };
+        return ChessTranslator.moveToAlgebraic(this) + promo;
     }
 }

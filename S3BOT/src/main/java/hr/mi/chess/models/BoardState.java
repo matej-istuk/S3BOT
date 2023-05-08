@@ -2,12 +2,12 @@ package hr.mi.chess.models;
 
 import hr.mi.chess.constants.ChessBoardConstants;
 import hr.mi.chess.models.support.ZobristNumbers;
+import hr.mi.chess.movegen.LegalMoveGenerator;
 import hr.mi.chess.util.ChessTranslator;
 import hr.mi.chess.constants.ChessConstants;
 import hr.mi.chess.constants.ChessPieceConstants;
 
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.*;
 
 
 /**
@@ -194,6 +194,10 @@ public class BoardState {
             enPassantTarget = -1;
         }
 
+        if (!epCapturePossible()) {
+            enPassantTarget = -1;
+        }
+
         //Halfmove Clock
         halfMoveClock = Integer.parseInt(fenArr[4]);
 
@@ -203,6 +207,34 @@ public class BoardState {
         previousMoves.clear();
 
         calculateZobrist();
+    }
+
+    private final static Map<Integer, Long> epMasks = Map.ofEntries(
+            Map.entry(16, 33554432L),
+            Map.entry(17, 83886080L),
+            Map.entry(18, 167772160L),
+            Map.entry(19, 335544320L),
+            Map.entry(20, 671088640L),
+            Map.entry(21, 1342177280L),
+            Map.entry(22, 2684354560L),
+            Map.entry(23, 1073741824L),
+            Map.entry(40, 8589934592L),
+            Map.entry(41, 21474836480L),
+            Map.entry(42, 42949672960L),
+            Map.entry(43, 85899345920L),
+            Map.entry(44, 171798691840L),
+            Map.entry(45, 343597383680L),
+            Map.entry(46, 687194767360L),
+            Map.entry(47, 274877906944L)
+
+    );
+
+    private boolean epCapturePossible() {
+        if (enPassantTarget == -1){
+            return false;
+        }
+        long cPawnBitboard = bitboards[enPassantTarget < 32 ? 6 : 0];
+        return (cPawnBitboard & epMasks.get(enPassantTarget)) != 0;
     }
 
     public void loadStartingPosition(){
@@ -456,6 +488,10 @@ public class BoardState {
                     enPassantTarget = move.getTo() - 8;
                 else
                     enPassantTarget = move.getTo() + 8;
+
+                if (!epCapturePossible()) {
+                    enPassantTarget = -1;
+                }
             }
             //king castle
             case 2 -> {
@@ -533,6 +569,25 @@ public class BoardState {
 
         //push the move onto the stack
         previousMoves.push(move);
+    }
+
+    public void makeMove(String moveString) {
+        List<Move> moves = LegalMoveGenerator.generateMoves(this);
+
+        Optional<Move> oMove = moves.stream().filter(move -> move.toString().equals(moveString)).findFirst();
+
+        if (oMove.isPresent()){
+            makeMove(oMove.get());
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public void makeMoves (String... moveStrings) {
+        for (String move: moveStrings){
+            makeMove(move);
+        }
     }
 
     /**
@@ -624,7 +679,7 @@ public class BoardState {
      * @param move the move being made or unmade
      */
     private void zobristChangeMoveSpecial(Move move) {
-        zobristHash ^= ZobristNumbers.getBlackActive();
+        zobristHash ^= ZobristNumbers.getWhiteActive();
 
         if (move.getOldEnPassantTarget() != -1)
             zobristHash ^= ZobristNumbers.getEnPassant(move.getOldEnPassantTarget()%8);
@@ -661,6 +716,7 @@ public class BoardState {
     }
 
     private void calculateZobrist(){
+        zobristHash = 0;
         for (int i = 0; i < bitboards.length; i++)
             for (int j = 0; j < 64; j++)
                 if ((bitboards[i] & (1L<<j)) != 0)
@@ -682,8 +738,8 @@ public class BoardState {
         if (enPassantTarget != -1)
             zobristHash ^= ZobristNumbers.getEnPassant(enPassantTarget%8);
 
-        if (activeColour == ChessConstants.BLACK)
-            zobristHash ^= ZobristNumbers.getBlackActive();
+        if (activeColour == ChessConstants.WHITE)
+            zobristHash ^= ZobristNumbers.getWhiteActive();
     }
 
     @Override

@@ -11,12 +11,14 @@ import hr.mi.chess.player.human.HumanPlayer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class ChessGuiApp extends JFrame {
 
-    private ChessGame game;
+    private final ChessGame game;
 
     public ChessGuiApp() {
         BlockingQueue<FromToPair> blockingQueue = new ArrayBlockingQueue<>(1);
@@ -52,7 +54,14 @@ public class ChessGuiApp extends JFrame {
         game = new ChessGame(whitePlayer, blackPlayer);
         InputManager inputManager = new InputManager(blockingQueue, game.getBoardState());
 
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                close();
+            }
+        });
+
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setSize(700, 700);
         setTitle("JChess");
 
@@ -62,6 +71,11 @@ public class ChessGuiApp extends JFrame {
         JChessBoard chessBoard = new JChessBoard(game, choseSide == 2);
         this.add(chessBoard);
         chessBoard.addListener(inputManager::tileSelected);
+    }
+
+    private void close() {
+        game.saveToDisc();
+        System.exit(0);
     }
 
     public static void main(String[] args) {

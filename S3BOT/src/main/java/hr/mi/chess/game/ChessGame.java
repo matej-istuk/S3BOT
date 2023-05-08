@@ -8,6 +8,13 @@ import hr.mi.chess.util.BoardFunctions;
 import hr.mi.chess.movegen.LegalMoveGenerator;
 import hr.mi.chess.constants.ChessConstants;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +23,7 @@ public class ChessGame {
     private final Player whitePlayer;
     private final Player blackPlayer;
     private final List<GameListener> listeners;
+    private final String startTime;
 
     public ChessGame(Player whitePlayer, Player blackPlayer) {
         this(ChessBoardConstants.STARTING_POSITION_FEN, whitePlayer, blackPlayer);
@@ -26,6 +34,9 @@ public class ChessGame {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
         this.listeners = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        this.startTime = String.format("%d-%d-%d_%d:%d:%d", now.getYear(), now.getMonth().getValue(), now.getDayOfMonth(), now.getHour(), now.getMinute(), now.getSecond());
+
     }
 
     public GameStateEnum advance(){
@@ -56,6 +67,20 @@ public class ChessGame {
         return GameStateEnum.IN_PROGRESS;
     }
 
+    public String saveToDisc(){
+        String error = "";
+        Path gamePath = Path.of("games" + File.separator + "chess_game_" + startTime);
+        gamePath.getParent().toFile().mkdirs();
+        try (BufferedWriter writer = Files.newBufferedWriter(gamePath, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+            for (Move move: this.getBoardState().getPreviousMoves()){
+                writer.write(move.toString() + " ");
+            }
+        } catch (Exception e) {
+            error = "Saving failed!";
+        }
+
+        return error;
+    }
     public BoardState getBoardState() {
         return boardState;
     }

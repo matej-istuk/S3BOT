@@ -29,7 +29,7 @@ class ZobristNumbersTest {
             counter++;
         }
 
-        set.add(ZobristNumbers.getBlackActive());
+        set.add(ZobristNumbers.getWhiteActive());
         counter++;
 
         assertEquals(counter, set.size());

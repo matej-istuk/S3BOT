@@ -99,7 +99,7 @@ public class MoveUtil {
         }
 
         //generate double push for pawns
-        if (piece.isPawn()){
+        if (piece.isPawn() && moveOffsetGetter.getMoveOffset(piece).length == 1){
             long pawnStartingRowMask = piece.getColour() == ChessConstants.WHITE ? ChessBoardConstants.RANK_2 : ChessBoardConstants.RANK_7;
             LongUnaryOperator shift = piece.getColour() == ChessConstants.WHITE ? o -> o << ChessBoardConstants.NORTH : o -> o >>> ChessBoardConstants.NORTH;
             while (attackingPieces != 0){

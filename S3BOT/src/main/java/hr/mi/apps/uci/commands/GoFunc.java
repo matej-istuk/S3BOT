@@ -23,6 +23,9 @@ public class GoFunc extends UciTask {
         Move bestmove = searchManager.findBestMove(environment.getBoardstate());
 
         System.out.println(System.currentTimeMillis() - sTime);
-        return new String[] {"bestmove " + bestmove.toString()};
+        if (bestmove != null)
+            return new String[] {"bestmove " + bestmove.toString()};
+        else
+            return new String[]{"No move"};
     }
 }

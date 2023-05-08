@@ -50,7 +50,7 @@ class BoardStateTest {
 
         assertFalse(boardState.getActiveColour());
 
-        assertEquals(17, boardState.getEnPassantTarget());
+        assertEquals(-1, boardState.getEnPassantTarget());
     }
 
     @Test
@@ -726,5 +726,50 @@ class BoardStateTest {
         boardState.unmakeLastMove();
         assertEquals((new BoardState("rn1qkbr1/ppp1p2P/6p1/3p4/2P1nB2/2NP4/PP2QP1P/R3K2R b KQq - 0 5")).getZobristHash(), boardState.getZobristHash());
         assertEquals(zHash0, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobristPolyglot1() {
+        BoardState boardState = new BoardState();
+        assertEquals(0x463b96181691fc9cL, boardState.getZobristHash());
+        boardState = new BoardState("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+        assertEquals(0x823c9b50fd114196L, boardState.getZobristHash());
+        boardState = new BoardState("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2");
+        assertEquals(0x0756b94461c50fb0L, boardState.getZobristHash());
+        boardState = new BoardState("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3");
+        assertEquals(0x22a48b5a8e47ff78L, boardState.getZobristHash());
+        boardState = new BoardState("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2");
+        assertEquals(0x662fafb965db29d4L, boardState.getZobristHash());
+        boardState = new BoardState("rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3");
+        assertEquals(0x652a607ca3f242c1L, boardState.getZobristHash());
+        boardState = new BoardState("rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4");
+        assertEquals(0x00fdd303c946bdd9L, boardState.getZobristHash());
+        boardState = new BoardState("rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3");
+        assertEquals(0x3c8123ea7b067637L, boardState.getZobristHash());
+        boardState = new BoardState("rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4");
+        assertEquals(0x5c3f9b829b279560L, boardState.getZobristHash());
+    }
+
+    @Test
+    void testZobristPolyglot2() {
+        BoardState boardState = new BoardState();
+        assertEquals(0x463b96181691fc9cL, boardState.getZobristHash());
+        boardState.makeMove("e2e4");
+        assertEquals(0x823c9b50fd114196L, boardState.getZobristHash());
+        boardState.makeMove("d7d5");
+        assertEquals(0x0756b94461c50fb0L, boardState.getZobristHash());
+        boardState.makeMove("e4e5");
+        assertEquals(0x662fafb965db29d4L, boardState.getZobristHash());
+        boardState.makeMove("f7f5");
+        assertEquals(0x22a48b5a8e47ff78L, boardState.getZobristHash());
+        boardState.makeMove("e1e2");
+        assertEquals(0x652a607ca3f242c1L, boardState.getZobristHash());
+        boardState.makeMove("e8f7");
+        assertEquals(0x00fdd303c946bdd9L, boardState.getZobristHash());
+        boardState = new BoardState();
+        boardState.makeMoves("a2a4", "b7b5", "h2h4", "b5b4", "c2c4");
+        assertEquals(0x3c8123ea7b067637L, boardState.getZobristHash());
+        boardState.makeMoves("b4c3", "a1a3");
+        assertEquals(0x5c3f9b829b279560L, boardState.getZobristHash());
     }
 }
