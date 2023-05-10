@@ -1,10 +1,9 @@
 package hr.mi.apps.bridges;
 
-import hr.mi.chess.player.human.FromToPair;
+import hr.mi.support.FromToPair;
 import hr.mi.chess.player.human.UserBridge;
 
 import javax.swing.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class GUIUserBridge implements UserBridge {

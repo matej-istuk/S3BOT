@@ -26,7 +26,11 @@ public class ChessPieceConstants {
             Map.entry('P', 0), Map.entry('R', 1), Map.entry('N', 2), Map.entry('B', 3), Map.entry('Q', 4), Map.entry('K', 5),
             Map.entry('p', 6), Map.entry('r', 7), Map.entry('n', 8), Map.entry('b', 9), Map.entry('q', 10), Map.entry('k', 11)
     );
-
+    public static
+    final Map<Integer, Character> INT_PIECE_MAPPING = Map.ofEntries(
+            Map.entry(0, 'P'), Map.entry(1, 'R'), Map.entry(2, 'N'), Map.entry(3, 'B'), Map.entry( 4, 'Q'), Map.entry(5, 'K'),
+            Map.entry(6, 'p'), Map.entry(7, 'r'), Map.entry(8, 'n'), Map.entry(9, 'b'), Map.entry(10, 'q'), Map.entry(11, 'k')
+    );
     public static final int PAWN = 0;
     public static final int ROOK = 1;
     public static final int KNIGHT = 2;

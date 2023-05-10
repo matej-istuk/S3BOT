@@ -194,7 +194,7 @@ public class BoardState {
             enPassantTarget = -1;
         }
 
-        if (!epCapturePossible()) {
+        if (noEpCapture()) {
             enPassantTarget = -1;
         }
 
@@ -207,6 +207,81 @@ public class BoardState {
         previousMoves.clear();
 
         calculateZobrist();
+    }
+
+    public String getFEN() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i = 7; i >= 0; i--){
+            int emptySpaceCounter = 0;
+            for (int j = 0; j < 8; j++){
+                boolean piecePresent = false;
+                for (int k = 0; k < bitboards.length && !piecePresent; k++){
+                    if ((bitboards[k] & (1L << (i*8 + j))) != 0) {
+                        if (emptySpaceCounter != 0){
+                            stringBuilder.append(emptySpaceCounter);
+                            emptySpaceCounter = 0;
+                        }
+                        stringBuilder.append(ChessPieceConstants.INT_PIECE_MAPPING.get(k));
+                        piecePresent = true;
+                    }
+                }
+
+                if (!piecePresent){
+                    emptySpaceCounter++;
+                }
+            }
+            if (emptySpaceCounter != 0) {
+                stringBuilder.append(emptySpaceCounter);
+            }
+            if (i != 0){
+                stringBuilder.append("/");
+            }
+        }
+
+        stringBuilder.append(" ");
+
+        if (activeColour == ChessConstants.WHITE)
+            stringBuilder.append("w");
+        else
+            stringBuilder.append("b");
+
+        stringBuilder.append(" ");
+
+        boolean noCastle = true;
+        if (whiteKingSideCastling) {
+            stringBuilder.append("K");
+            noCastle = false;
+        }
+        if (whiteQueenSideCastling) {
+            stringBuilder.append("Q");
+            noCastle = false;
+        }
+        if (blackKingSideCastling) {
+            stringBuilder.append("k");
+            noCastle = false;
+        }
+        if (blackQueenSideCastling) {
+            stringBuilder.append("q");
+            noCastle = false;
+        }
+        if (noCastle){
+            stringBuilder.append("-");
+        }
+
+        stringBuilder.append(" ");
+
+        if (enPassantTarget != -1)
+            stringBuilder.append(ChessTranslator.LERFToAlgebraicPos(enPassantTarget));
+        else
+            stringBuilder.append("-");
+
+        stringBuilder.append(" ");
+        stringBuilder.append(halfMoveClock);
+        stringBuilder.append(" ");
+        stringBuilder.append(fullMoves);
+
+        return stringBuilder.toString();
     }
 
     private final static Map<Integer, Long> epMasks = Map.ofEntries(
@@ -229,12 +304,12 @@ public class BoardState {
 
     );
 
-    private boolean epCapturePossible() {
+    private boolean noEpCapture() {
         if (enPassantTarget == -1){
-            return false;
+            return true;
         }
         long cPawnBitboard = bitboards[enPassantTarget < 32 ? 6 : 0];
-        return (cPawnBitboard & epMasks.get(enPassantTarget)) != 0;
+        return (cPawnBitboard & epMasks.get(enPassantTarget)) == 0;
     }
 
     public void loadStartingPosition(){
@@ -489,7 +564,7 @@ public class BoardState {
                 else
                     enPassantTarget = move.getTo() + 8;
 
-                if (!epCapturePossible()) {
+                if (noEpCapture()) {
                     enPassantTarget = -1;
                 }
             }

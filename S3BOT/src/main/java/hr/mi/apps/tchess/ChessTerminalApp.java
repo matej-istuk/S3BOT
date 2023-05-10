@@ -1,6 +1,7 @@
 package hr.mi.apps.tchess;
 
 import hr.mi.apps.bridges.TerminalUserBridge;
+import hr.mi.chess.algorithm.support.OpeningBook;
 import hr.mi.chess.constants.ChessConstants;
 import hr.mi.chess.constants.ChessPieceConstants;
 import hr.mi.chess.game.ChessGame;
@@ -24,8 +25,8 @@ public class ChessTerminalApp {
     }
 
     private static void playGame(){
-        Player whitePlayer = new PlayerAlan();
-        Player blackPlayer = new HumanPlayer(new TerminalUserBridge());
+        Player whitePlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
+        Player blackPlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
 
 
         ChessGame game = new ChessGame(whitePlayer, blackPlayer);

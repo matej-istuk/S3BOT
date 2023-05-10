@@ -1,9 +1,8 @@
 package hr.mi.apps.jchess;
 
-import hr.mi.apps.jchess.components.JChessBoard;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.ChessPiece;
-import hr.mi.chess.player.human.FromToPair;
+import hr.mi.support.FromToPair;
 import hr.mi.chess.util.BoardFunctions;
 
 import java.util.concurrent.BlockingQueue;

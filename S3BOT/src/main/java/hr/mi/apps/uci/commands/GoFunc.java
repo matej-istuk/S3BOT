@@ -17,9 +17,8 @@ public class GoFunc extends UciTask {
     public String[] call() throws Exception {
         SearchManager searchManager = new SearchManager();
 
-        //searchManager.setMoveTime(5000);
+        searchManager.setMoveTime(10000);
         long sTime = System.currentTimeMillis();
-        searchManager.setDepth(8);
         Move bestmove = searchManager.findBestMove(environment.getBoardstate());
 
         System.out.println(System.currentTimeMillis() - sTime);

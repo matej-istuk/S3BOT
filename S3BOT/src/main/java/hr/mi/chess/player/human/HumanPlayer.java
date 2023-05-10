@@ -4,6 +4,7 @@ import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
 import hr.mi.chess.movegen.LegalMoveGenerator;
 import hr.mi.chess.player.Player;
+import hr.mi.support.FromToPair;
 
 import java.util.ArrayList;
 import java.util.List;

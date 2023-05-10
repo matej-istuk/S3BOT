@@ -2,11 +2,11 @@ package hr.mi.apps.jchess;
 
 import hr.mi.apps.bridges.GUIUserBridge;
 import hr.mi.apps.jchess.components.JChessBoard;
+import hr.mi.chess.algorithm.support.OpeningBook;
 import hr.mi.chess.game.ChessGame;
 import hr.mi.chess.player.Player;
 import hr.mi.chess.player.ai.PlayerAlan;
-import hr.mi.chess.player.ai.PlayerRandy;
-import hr.mi.chess.player.human.FromToPair;
+import hr.mi.support.FromToPair;
 import hr.mi.chess.player.human.HumanPlayer;
 
 import javax.swing.*;
@@ -42,13 +42,13 @@ public class ChessGuiApp extends JFrame {
         if ((choseSide & 1) != 0){
             whitePlayer = new HumanPlayer(new GUIUserBridge(blockingQueue));
         } else {
-            whitePlayer = new PlayerAlan();
+            whitePlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
         }
 
         if ((choseSide & 2) != 0){
             blackPlayer = new HumanPlayer(new GUIUserBridge(blockingQueue));
         } else {
-            blackPlayer = new PlayerAlan();
+            blackPlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
         }
 
         game = new ChessGame(whitePlayer, blackPlayer);

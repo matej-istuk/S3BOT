@@ -1,4 +1,4 @@
-package hr.mi.chess.player.human;
+package hr.mi.support;
 
 public record FromToPair(int from, int to) {
 }
