@@ -18,7 +18,7 @@ public class PlayerAlan implements Player {
     private final OpeningBook openingBook;
     private boolean isInBook;
     private boolean isStopped;
-    private SearchEndCondition searchEndCondition;
+    private final SearchEndCondition searchEndCondition;
 
     public PlayerAlan() {
         this(null, 0);

@@ -26,7 +26,7 @@ public class ChessGame {
     private final List<GameListener> gameSavedlisteners;
     private final String startTime;
     private volatile boolean forceStop = false;
-    private volatile boolean legalToSave = false;
+    private volatile boolean isSaved = false;
 
     public ChessGame(Player whitePlayer, Player blackPlayer) {
         this(ChessBoardConstants.STARTING_POSITION_FEN, whitePlayer, blackPlayer);
@@ -88,7 +88,7 @@ public class ChessGame {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-
+        isSaved = true;
         updateGameSavedListeners();
     }
     public BoardState getBoardState() {
@@ -99,6 +99,10 @@ public class ChessGame {
         forceStop = true;
         whitePlayer.stop();
         blackPlayer.stop();
+    }
+
+    public boolean isSaved() {
+        return isSaved;
     }
 
     public void addGameListener(GameListener listener){

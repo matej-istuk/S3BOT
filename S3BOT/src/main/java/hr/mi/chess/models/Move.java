@@ -284,13 +284,6 @@ public class Move {
 
     @Override
     public String toString() {
-        String promo = switch (flags) {
-                case 8, 12 -> "r";
-                case 9, 13 -> "k";
-                case 10, 14 -> "b";
-                case 11, 15 -> "q";
-                default -> "";
-        };
-        return ChessTranslator.moveToAlgebraic(this) + promo;
+        return ChessTranslator.moveToAlgebraic(this);
     }
 }

@@ -13,7 +13,7 @@ import java.util.*;
 
 public class GameStateSearch {
     private final EvaluationFunction evaluationFunction;
-    private SearchInfo searchInfo;
+    private final SearchInfo searchInfo;
     //private static final MoveComparator moveComparator = new MoveComparator();
     private long statesSearched;
     private int quiescenceStatesSearched;
@@ -30,10 +30,12 @@ public class GameStateSearch {
         this.searchEndCondition = searchEndCondition;
         this.searchStartTime = System.currentTimeMillis();
         evaluationFunction.setPerspective(boardState.getActiveColour());
+
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
         if (moves.isEmpty()){
             return null;
         }
+
         Move bestMove = moves.get(0);
         for (int i = 1; i < searchEndCondition.getMaxDepth(); i++) {
             statesSearched = 0;
@@ -85,7 +87,7 @@ public class GameStateSearch {
         //tt stuff
         SearchInfo.TTEntry ttEntry = searchInfo.ttGet(boardState.getZobristHash());
 
-        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.depth() >= searchDepth - ply && moves.contains(ttEntry.bestMove())){
+        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.depth() >= (searchDepth - ply) && moves.contains(ttEntry.bestMove())){
             switch (ttEntry.type()) {
                 case SearchInfo.EXACT -> {
                     return new MoveValuePair(ttEntry.bestMove(), ttEntry.value());
@@ -124,6 +126,7 @@ public class GameStateSearch {
                 break;
             }
         }
+
         int ttType = SearchInfo.EXACT;
 
         if (value <= originalAlpha){
@@ -202,7 +205,7 @@ public class GameStateSearch {
 
     private double evaluateNoMoveBoard(BoardState boardState) {
         if ((MoveUtil.getKingDangerSquares(boardState.getBitboards(), boardState.getActiveColour()) & boardState.getBitboards()[(boardState.getActiveColour() == ChessConstants.WHITE) ? 5 : 11]) != 0L){
-            return Integer.MAX_VALUE/2;
+            return (double) Integer.MAX_VALUE /2;
         }
         return 0;
     }

@@ -74,6 +74,10 @@ public class ChessGuiApp extends JFrame {
     }
 
     private void close() {
+        if (game.isSaved()){
+            System.exit(0);
+        }
+
         game.stop();
         game.addGameSavedListener(() -> System.exit(0));
 
