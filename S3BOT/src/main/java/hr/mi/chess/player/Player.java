@@ -5,4 +5,5 @@ import hr.mi.chess.models.Move;
 
 public interface Player {
     Move requestMove(BoardState boardState);
+    void stop();
 }

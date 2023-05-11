@@ -48,6 +48,7 @@ public class ChessTerminalApp {
             case WHITE_VICTORY -> System.out.printf("%nWhite wins!%n");
             case BLACK_VICTORY -> System.out.printf("%nBlack wins!%n");
             case DRAW -> System.out.printf("%nDraw%n");
+            case FORCED_STOP -> System.out.printf("%nForced Stop%n");
             case IN_PROGRESS -> throw new IllegalStateException();
         }
     }

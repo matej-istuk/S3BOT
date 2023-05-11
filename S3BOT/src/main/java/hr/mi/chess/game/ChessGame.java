@@ -23,7 +23,10 @@ public class ChessGame {
     private final Player whitePlayer;
     private final Player blackPlayer;
     private final List<GameListener> listeners;
+    private final List<GameListener> gameSavedlisteners;
     private final String startTime;
+    private volatile boolean forceStop = false;
+    private volatile boolean legalToSave = false;
 
     public ChessGame(Player whitePlayer, Player blackPlayer) {
         this(ChessBoardConstants.STARTING_POSITION_FEN, whitePlayer, blackPlayer);
@@ -34,6 +37,7 @@ public class ChessGame {
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
         this.listeners = new ArrayList<>();
+        this.gameSavedlisteners = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         this.startTime = String.format("%d-%d-%d_%d:%d:%d", now.getYear(), now.getMonth().getValue(), now.getDayOfMonth(), now.getHour(), now.getMinute(), now.getSecond());
 
@@ -45,6 +49,7 @@ public class ChessGame {
 
         //check if the game is finished
         if (legalMoves.isEmpty()){
+            saveToDisc();
             //if the king is in check, it's a victory for the passive colour
             if (BoardFunctions.determineCheckByColour(boardState.getBitboards(), boardState.getActiveColour())){
                 return boardState.getPassiveColour() == ChessConstants.WHITE ? GameStateEnum.WHITE_VICTORY : GameStateEnum.BLACK_VICTORY;
@@ -59,7 +64,12 @@ public class ChessGame {
         //wait until a legal move is played
         do {
             move = activePlayer.requestMove(boardState);
-        } while (!legalMoves.contains(move));
+        } while (!(legalMoves.contains(move) || move == null));
+
+        if (forceStop || move == null){
+            saveToDisc();
+            return GameStateEnum.FORCED_STOP;
+        }
 
         boardState.makeMove(move);
         updateListeners();
@@ -67,22 +77,28 @@ public class ChessGame {
         return GameStateEnum.IN_PROGRESS;
     }
 
-    public String saveToDisc(){
+    public void saveToDisc(){
         String error = "";
         Path gamePath = Path.of("games" + File.separator + "chess_game_" + startTime);
         gamePath.getParent().toFile().mkdirs();
         try (BufferedWriter writer = Files.newBufferedWriter(gamePath, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
-            for (Move move: this.getBoardState().getPreviousMoves()){
+            for (Move move : this.getBoardState().getPreviousMoves()) {
                 writer.write(move.toString() + " ");
             }
         } catch (Exception e) {
-            error = "Saving failed!";
+            System.out.println(e.toString());
         }
 
-        return error;
+        updateGameSavedListeners();
     }
     public BoardState getBoardState() {
         return boardState;
+    }
+
+    public void stop() {
+        forceStop = true;
+        whitePlayer.stop();
+        blackPlayer.stop();
     }
 
     public void addGameListener(GameListener listener){
@@ -91,5 +107,13 @@ public class ChessGame {
 
     private void updateListeners(){
         listeners.forEach(GameListener::gameStateUpdated);
+    }
+
+    public void addGameSavedListener(GameListener listener){
+        gameSavedlisteners.add(listener);
+    }
+
+    private void updateGameSavedListeners(){
+        gameSavedlisteners.forEach(GameListener::gameStateUpdated);
     }
 }

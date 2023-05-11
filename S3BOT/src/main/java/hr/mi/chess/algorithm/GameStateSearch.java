@@ -25,8 +25,6 @@ public class GameStateSearch {
         this.searchInfo = new SearchInfo();
     }
 
-
-
     public Move getBestMove(BoardState boardState, SearchEndCondition searchEndCondition){
         searchInfo.clearKillerMoves();
         this.searchEndCondition = searchEndCondition;
@@ -64,6 +62,10 @@ public class GameStateSearch {
             return new MoveValuePair(null, getQuiescenceEvaluation(boardState, ply, alpha, beta, colour));
         }
 
+        if (searchEndCondition.isManualStop()){
+            return new MoveValuePair(null, 0);
+        }
+
         if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()){
             return new MoveValuePair(null, 0);
         }
@@ -83,7 +85,7 @@ public class GameStateSearch {
         //tt stuff
         SearchInfo.TTEntry ttEntry = searchInfo.ttGet(boardState.getZobristHash());
 
-        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.depth() >= searchDepth && moves.contains(ttEntry.bestMove())){
+        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.depth() >= searchDepth - ply && moves.contains(ttEntry.bestMove())){
             switch (ttEntry.type()) {
                 case SearchInfo.EXACT -> {
                     return new MoveValuePair(ttEntry.bestMove(), ttEntry.value());
@@ -130,7 +132,7 @@ public class GameStateSearch {
             ttType = SearchInfo.LOWER_BOUND;
         }
 
-        searchInfo.ttStore(new SearchInfo.TTEntry(boardState.getZobristHash(), value, ttType, bestMove, searchDepth));
+        searchInfo.ttStore(new SearchInfo.TTEntry(boardState.getZobristHash(), value, ttType, bestMove, searchDepth - ply));
 
         return new MoveValuePair(bestMove, value);
     }

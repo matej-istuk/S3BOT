@@ -5,4 +5,5 @@ import hr.mi.support.FromToPair;
 public interface UserBridge {
     FromToPair requestMoveInput();
     int requestPromotedPiece();
+    void stop();
 }

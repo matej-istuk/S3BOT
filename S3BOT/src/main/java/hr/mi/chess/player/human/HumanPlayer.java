@@ -12,11 +12,10 @@ import java.util.List;
 public class HumanPlayer implements Player {
 
     private final UserBridge userBridge;
-
+    private volatile boolean isStopped = false;
     public HumanPlayer(UserBridge userBridge) {
         this.userBridge = userBridge;
     }
-
     @Override
     public Move requestMove(BoardState boardState) {
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
@@ -25,10 +24,19 @@ public class HumanPlayer implements Player {
 
         do {
             FromToPair toFrom = userBridge.requestMoveInput();
+            if (isStopped){
+                return null;
+            }
             move = findCorrespondingMove(moves, toFrom.from(), toFrom.to());
         } while (move == null);
 
         return move;
+    }
+
+    @Override
+    public void stop() {
+        isStopped = true;
+        userBridge.stop();
     }
 
     private Move findCorrespondingMove (List<Move> moves, int from, int to){

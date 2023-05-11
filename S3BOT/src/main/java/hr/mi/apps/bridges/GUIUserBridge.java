@@ -38,4 +38,15 @@ public class GUIUserBridge implements UserBridge {
                 JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
                 null, options, options[3]);
     }
+
+    @Override
+    public void stop() {
+        do {
+            try {
+                blockingQueue.put(new FromToPair(-1, -1));
+                return;
+            } catch (InterruptedException ignored){}
+        } while (true);
+
+    }
 }

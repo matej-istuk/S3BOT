@@ -17,6 +17,8 @@ public class PlayerAlan implements Player {
     private  GameStateSearch gameStateSearch;
     private final OpeningBook openingBook;
     private boolean isInBook;
+    private boolean isStopped;
+    private SearchEndCondition searchEndCondition;
 
     public PlayerAlan() {
         this(null, 0);
@@ -30,11 +32,16 @@ public class PlayerAlan implements Player {
             openingBook = null;
             isInBook = false;
         }
-
+        this.searchEndCondition = new SearchEndCondition();
+        searchEndCondition.setMaxTime(10000);
+        this.gameStateSearch = new GameStateSearch(new SimplePlusEvaluationFunction());
     }
 
     @Override
     public Move requestMove(BoardState boardState) {
+        if (isStopped) {
+            throw new IllegalStateException();
+        }
         //check book
         if (isInBook){
             assert openingBook != null;
@@ -45,10 +52,12 @@ public class PlayerAlan implements Player {
                 isInBook = false;
             }
         }
-
-        this.gameStateSearch = new GameStateSearch(new SimplePlusEvaluationFunction());
-        SearchEndCondition searchEndCondition = new SearchEndCondition();
-        searchEndCondition.setMaxTime(10000);
         return gameStateSearch.getBestMove(boardState, searchEndCondition);
+    }
+
+    @Override
+    public void stop() {
+        searchEndCondition.setManualStop(true);
+        isStopped = true;
     }
 }

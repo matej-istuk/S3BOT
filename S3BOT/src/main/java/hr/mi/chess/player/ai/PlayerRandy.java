@@ -11,6 +11,7 @@ import java.util.Random;
 public class PlayerRandy implements Player {
     private final Random random;
     private final boolean pretendToThink;
+    private boolean isStopped;
 
     public PlayerRandy(int seed, boolean pretendToThink) {
         this.random = new Random(seed);
@@ -24,6 +25,9 @@ public class PlayerRandy implements Player {
 
     @Override
     public Move requestMove(BoardState boardState) {
+        if (isStopped){
+            throw new IllegalStateException();
+        }
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
         if (pretendToThink){
             try {
@@ -33,5 +37,10 @@ public class PlayerRandy implements Player {
             }
         }
         return moves.get(random.nextInt(moves.size()));
+    }
+
+    @Override
+    public void stop() {
+        isStopped = true;
     }
 }

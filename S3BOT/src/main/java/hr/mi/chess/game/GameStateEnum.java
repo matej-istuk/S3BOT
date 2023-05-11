@@ -4,5 +4,6 @@ public enum GameStateEnum {
     IN_PROGRESS,
     WHITE_VICTORY,
     BLACK_VICTORY,
-    DRAW
+    DRAW,
+    FORCED_STOP
 }

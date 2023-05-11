@@ -29,6 +29,11 @@ public class TerminalUserBridge implements UserBridge {
         return 0;
     }
 
+    @Override
+    public void stop() {
+
+    }
+
     private FromToPair parseInput(String input){
         int from;
         int to;
