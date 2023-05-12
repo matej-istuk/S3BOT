@@ -51,7 +51,6 @@ public class JChessBoard extends JComponent {
 
 
                 do {
-                    System.out.println(game.getBoardState().getZobristHash());
                     gameState = game.advance();
                 } while (gameState == GameStateEnum.IN_PROGRESS);
 

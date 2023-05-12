@@ -52,6 +52,7 @@ public class GameStateSearch {
             }
             bestMove = bestMoveCandidate;
         }
+        System.out.println(System.currentTimeMillis() - searchStartTime);
         return bestMove;
     }
 
@@ -87,7 +88,7 @@ public class GameStateSearch {
         //tt stuff
         SearchInfo.TTEntry ttEntry = searchInfo.ttGet(boardState.getZobristHash());
 
-        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.depth() >= (searchDepth - ply) && moves.contains(ttEntry.bestMove())){
+        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.depth() == (searchDepth - ply) && moves.contains(ttEntry.bestMove())){
             switch (ttEntry.type()) {
                 case SearchInfo.EXACT -> {
                     return new MoveValuePair(ttEntry.bestMove(), ttEntry.value());
