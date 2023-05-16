@@ -48,7 +48,7 @@ public class ChessGame {
         List<Move> legalMoves = LegalMoveGenerator.generateMoves(boardState);
 
         //check if the game is finished
-        if (legalMoves.isEmpty()){
+        if (legalMoves.isEmpty() || boardState.isDraw()){
             saveToDisc();
             //if the king is in check, it's a victory for the passive colour
             if (BoardFunctions.determineCheckByColour(boardState.getBitboards(), boardState.getActiveColour())){
@@ -67,6 +67,7 @@ public class ChessGame {
         } while (!(legalMoves.contains(move) || move == null));
 
         if (forceStop || move == null){
+            System.out.println("Forced Stop");
             saveToDisc();
             return GameStateEnum.FORCED_STOP;
         }

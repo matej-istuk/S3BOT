@@ -56,7 +56,7 @@ public class SearchInfo {
      */
     public SearchInfo(int size) {
         //check if size is power of 2, if it isn't set it to the highest power of 2 lower than the received one
-        if (Integer.bitCount(size) != 1) {
+        if (Integer.bitCount(size) != 1 || size != 0) {
             size = Integer.highestOneBit(size);
         }
 
@@ -70,10 +70,14 @@ public class SearchInfo {
      * @param ttEntry
      */
     public void ttStore(TTEntry ttEntry) {
-        int index = (int) (ttEntry.zobristHash()&indexMask);
+        if (tTable.length == 0){
+            return;
+        }
 
-        //if the zobrist hash is the same, keep the one which was explored to a greater depth
-        if (tTable[index] != null && tTable[index].zobristHash() == ttEntry.zobristHash() && tTable[index].depth() >= ttEntry.depth()){
+        int index = (int) (ttEntry.zobristHash&indexMask);
+
+        //keep the one which was explored to a greater depth
+        if (tTable[index] != null && tTable[index].creationMove >= ttEntry.creationMove && tTable[index].depth >= ttEntry.depth){
             return;
         }
         tTable[index] = ttEntry;
@@ -86,9 +90,13 @@ public class SearchInfo {
      * @return TTEntry
      */
     public TTEntry ttGet(long zobristHash) {
+        if (tTable.length == 0){
+            return null;
+        }
         return tTable[(int) (zobristHash&indexMask)];
     }
 
-    public record TTEntry (long zobristHash, double value, int type, Move bestMove, int depth) {}
+    public record TTEntry (long zobristHash, double value, int type, Move bestMove, int depth, int creationMove) {
+    }
 
 }

@@ -19,52 +19,65 @@ public class GameStateSearch {
     private int quiescenceStatesSearched;
     private long searchStartTime;
     private SearchEndCondition searchEndCondition;
+    private int searchStartMove;
+    private long ttHit;
 
     public GameStateSearch(EvaluationFunction evaluationFunction) {
+        this(evaluationFunction, 33554432);
+    }
+
+    public GameStateSearch(EvaluationFunction evaluationFunction, int ttSize) {
         this.evaluationFunction = evaluationFunction;
-        this.searchInfo = new SearchInfo();
+        this.searchInfo = new SearchInfo(ttSize);
     }
 
     public Move getBestMove(BoardState boardState, SearchEndCondition searchEndCondition){
-        searchInfo.clearKillerMoves();
-        this.searchEndCondition = searchEndCondition;
-        this.searchStartTime = System.currentTimeMillis();
-        evaluationFunction.setPerspective(boardState.getActiveColour());
+        try {
 
-        List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
-        if (moves.isEmpty()){
-            return null;
-        }
+            this.searchStartMove = boardState.getFullMoves();
+            searchInfo.clearKillerMoves();
+            this.searchEndCondition = searchEndCondition;
+            this.searchStartTime = System.currentTimeMillis();
+            evaluationFunction.setPerspective(boardState.getActiveColour());
 
-        Move bestMove = moves.get(0);
-        for (int i = 1; i < searchEndCondition.getMaxDepth(); i++) {
-            statesSearched = 0;
-            quiescenceStatesSearched = 0;
-            MoveValuePair mvp = getBestMoveRec(boardState, 0, i, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
-            Move bestMoveCandidate = mvp.move;
-            //System.out.println(i + ": " + bestMoveCandidate);
-            if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()) {
-                break;
+            List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
+            if (moves.isEmpty()) {
+                return null;
             }
 
-            if ((System.currentTimeMillis() - searchStartTime) > searchEndCondition.getMaxTime() || searchEndCondition.isManualStop()) {
-                break;
+            Move bestMove = moves.get(0);
+            int maxDepth = 0;
+            for (int i = 1; i < searchEndCondition.getMaxDepth(); i++) {
+                ttHit = 0;
+                statesSearched = 0;
+                quiescenceStatesSearched = 0;
+                MoveValuePair mvp = getBestMoveRec(boardState, 0, i, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+                Move bestMoveCandidate = mvp.move;
+                //System.out.println(i + ": " + bestMoveCandidate);
+                if ((statesSearched + quiescenceStatesSearched) >= searchEndCondition.getMaxNodes()) {
+                    break;
+                }
+
+                if ((System.currentTimeMillis() - searchStartTime) > searchEndCondition.getMaxTime() || searchEndCondition.isManualStop()) {
+                    break;
+                }
+                if (bestMoveCandidate != null) {
+                    bestMove = bestMoveCandidate;
+                    maxDepth = i;
+                    System.out.printf("TtHit at %d: %d%n", i, ttHit);
+                }
             }
-            bestMove = bestMoveCandidate;
+            System.out.println(System.currentTimeMillis() - searchStartTime + " " + maxDepth + " " + boardState.getFEN());
+            return bestMove;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        System.out.println(System.currentTimeMillis() - searchStartTime);
-        return bestMove;
+        return null;
     }
 
 
     private MoveValuePair getBestMoveRec(BoardState boardState, int ply, int searchDepth, double alpha, double beta, int colour){
-        double originalAlpha = alpha;
-
         //search termination conditions
-        if (ply >= searchDepth) {
-            return new MoveValuePair(null, getQuiescenceEvaluation(boardState, ply, alpha, beta, colour));
-        }
-
         if (searchEndCondition.isManualStop()){
             return new MoveValuePair(null, 0);
         }
@@ -79,16 +92,29 @@ public class GameStateSearch {
             }
         }
 
+        if (boardState.isDraw()) {
+            return new MoveValuePair(null, 0);
+        }
+
+        double originalAlpha = alpha;
+
+
+        if (ply >= searchDepth) {
+            return new MoveValuePair(null, getQuiescenceEvaluation(boardState, ply, alpha, beta, colour));
+        }
+
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
 
         if (moves.size() == 0) {
-            return new MoveValuePair(null, -evaluateNoMoveBoard(boardState));
+            return new MoveValuePair(null, -evaluateNoMoveBoard(boardState, ply));
         }
 
         //tt stuff
         SearchInfo.TTEntry ttEntry = searchInfo.ttGet(boardState.getZobristHash());
 
-        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.depth() == (searchDepth - ply) && moves.contains(ttEntry.bestMove())){
+
+        if (ttEntry != null && ttEntry.zobristHash() == boardState.getZobristHash() && ttEntry.creationMove() == this.searchStartMove && ttEntry.depth() >= (searchDepth - ply) && moves.contains(ttEntry.bestMove())){
+            ttHit++;
             switch (ttEntry.type()) {
                 case SearchInfo.EXACT -> {
                     return new MoveValuePair(ttEntry.bestMove(), ttEntry.value());
@@ -105,6 +131,7 @@ public class GameStateSearch {
                 return new MoveValuePair(ttEntry.bestMove(), ttEntry.value());
             }
         }
+
 
         statesSearched++;
         orderMoves(moves, ply, boardState.getLastMovedPieceIndex(), ttEntry != null ? ttEntry.bestMove() : null);
@@ -136,7 +163,8 @@ public class GameStateSearch {
             ttType = SearchInfo.LOWER_BOUND;
         }
 
-        searchInfo.ttStore(new SearchInfo.TTEntry(boardState.getZobristHash(), value, ttType, bestMove, searchDepth - ply));
+        SearchInfo.TTEntry newEntry = new SearchInfo.TTEntry(boardState.getZobristHash(), value, ttType, bestMove, searchDepth - ply, this.searchStartMove);
+        searchInfo.ttStore(newEntry);
 
         return new MoveValuePair(bestMove, value);
     }
@@ -154,9 +182,11 @@ public class GameStateSearch {
         }
 
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
+
         if (moves.isEmpty()) {
-            return -evaluateNoMoveBoard(boardState);
+            return -evaluateNoMoveBoard(boardState, ply);
         }
+
         moves.removeIf(m -> !m.isCapture());
         orderMoves(moves, -1, boardState.getLastMovedPieceIndex(), null);
         double value;
@@ -204,9 +234,9 @@ public class GameStateSearch {
         return score;
     }
 
-    private double evaluateNoMoveBoard(BoardState boardState) {
+    private double evaluateNoMoveBoard(BoardState boardState, int depth) {
         if ((MoveUtil.getKingDangerSquares(boardState.getBitboards(), boardState.getActiveColour()) & boardState.getBitboards()[(boardState.getActiveColour() == ChessConstants.WHITE) ? 5 : 11]) != 0L){
-            return (double) Integer.MAX_VALUE /2;
+            return ((double) Integer.MAX_VALUE / 2) - depth;
         }
         return 0;
     }

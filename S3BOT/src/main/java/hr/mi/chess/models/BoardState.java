@@ -35,6 +35,7 @@ public class BoardState {
     private int enPassantTarget;
     private final Stack<Move> previousMoves;
     private long zobristHash = 0;
+    private final Map<Long, Integer> repetitionMap;
 
     /**
      * Creates the starting board-state of a standard chess game.
@@ -50,7 +51,9 @@ public class BoardState {
      */
     public BoardState(String fen){
         previousMoves = new Stack<>();
+        repetitionMap = new HashMap<>();
         loadFen(fen);
+        this.addToRepetition();
     }
 
     /**
@@ -150,6 +153,9 @@ public class BoardState {
      * @param fen FEN string
      */
     public void loadFen(String fen) {
+        //reset the repetition map, because the board state changed completely
+        this.repetitionMap.clear();
+
         Arrays.fill(bitboards, 0L);
 
         String[] fenArr = fen.split(" ");
@@ -644,6 +650,9 @@ public class BoardState {
 
         //push the move onto the stack
         previousMoves.push(move);
+
+        //add boardstate to repetition map
+        addToRepetition();
     }
 
     public void makeMove(String moveString) {
@@ -669,6 +678,9 @@ public class BoardState {
      * Reverts the <code>BoardState</code> object to the state before the last move was made
      */
     public void unmakeLastMove(){
+        //remove the current boardstate from repetition map
+        this.removeFromRepetition();
+
         if (previousMoves.isEmpty()){
             throw new IllegalStateException();
         }
@@ -775,6 +787,39 @@ public class BoardState {
             zobristHash ^= ZobristNumbers.getCastling(3);
     }
 
+    private void addToRepetition(){
+        if (!repetitionMap.containsKey(this.zobristHash)){
+            repetitionMap.put(this.zobristHash, 0);
+        }
+
+        repetitionMap.put(zobristHash, repetitionMap.get(zobristHash) + 1);
+    }
+
+    private void removeFromRepetition(){
+        if (!repetitionMap.containsKey(this.zobristHash) || repetitionMap.get(zobristHash) == 0){
+            System.out.printf("%s wasn't in the repetition map", this.getFEN());
+            throw new IllegalStateException("Board state wasn't in repetition map");
+        }
+
+        if (repetitionMap.get(zobristHash) == 1) {
+            repetitionMap.remove(zobristHash);
+            return;
+        }
+
+        repetitionMap.put(zobristHash, repetitionMap.get(zobristHash) - 1);
+    }
+
+    public boolean isDraw() {
+        if (repetitionMap.containsKey(zobristHash) && repetitionMap.get(zobristHash) >= 3) {
+            return true;
+        }
+
+        if (halfMoveClock >= 100) {
+            return true;
+        }
+
+        return false;
+    }
     private void bitboardsAddPiece(int piece, int squareIndex) {
         bitboards[piece] = bitboards[piece] | (1L << squareIndex);
         zobristHash ^= ZobristNumbers.getPieceOnTile(piece, squareIndex);

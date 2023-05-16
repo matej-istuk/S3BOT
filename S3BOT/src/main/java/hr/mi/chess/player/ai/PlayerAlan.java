@@ -21,10 +21,13 @@ public class PlayerAlan implements Player {
     private final SearchEndCondition searchEndCondition;
 
     public PlayerAlan() {
-        this(null, 0);
+        this(null, OpeningBook.WEIGHTED_RANDOM_MOVE);
+    }
+    public PlayerAlan(String openingBookName, int decisionStyle){
+        this(openingBookName, decisionStyle, 33554432);
     }
 
-    public PlayerAlan(String openingBookName, int decisionStyle){
+    public PlayerAlan(String openingBookName, int decisionStyle, int ttSize){
         if (openingBookName != null){
             openingBook = new OpeningBook(openingBookName, decisionStyle);
             isInBook = true;
@@ -34,7 +37,7 @@ public class PlayerAlan implements Player {
         }
         this.searchEndCondition = new SearchEndCondition();
         searchEndCondition.setMaxTime(10000);
-        this.gameStateSearch = new GameStateSearch(new SimplePlusEvaluationFunction());
+        this.gameStateSearch = new GameStateSearch(new SimplePlusEvaluationFunction(), ttSize);
     }
 
     @Override

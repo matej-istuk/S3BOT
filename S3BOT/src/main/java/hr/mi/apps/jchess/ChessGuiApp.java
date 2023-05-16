@@ -42,13 +42,13 @@ public class ChessGuiApp extends JFrame {
         if ((choseSide & 1) != 0){
             whitePlayer = new HumanPlayer(new GUIUserBridge(blockingQueue));
         } else {
-            whitePlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
+            whitePlayer = new PlayerAlan("baron30.bin", OpeningBook.MOST_COMMON_MOVE);
         }
 
         if ((choseSide & 2) != 0){
             blackPlayer = new HumanPlayer(new GUIUserBridge(blockingQueue));
         } else {
-            blackPlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
+            blackPlayer = new PlayerAlan("baron30.bin", OpeningBook.MOST_COMMON_MOVE);
         }
 
         game = new ChessGame(whitePlayer, blackPlayer);

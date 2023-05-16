@@ -25,8 +25,8 @@ public class ChessTerminalApp {
     }
 
     private static void playGame(){
-        Player whitePlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
-        Player blackPlayer = new PlayerAlan("baron30.bin", OpeningBook.WEIGHTED_RANDOM_MOVE);
+        Player whitePlayer = new PlayerAlan("baron30.bin", OpeningBook.MOST_COMMON_MOVE, 0);;
+        Player blackPlayer = new PlayerAlan("baron30.bin", OpeningBook.MOST_COMMON_MOVE);
 
 
         ChessGame game = new ChessGame(whitePlayer, blackPlayer);

@@ -8,6 +8,7 @@ import hr.mi.chess.util.BoardFunctions;
 
 import javax.swing.*;
 import java.awt.*;
+import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,16 +48,23 @@ public class JChessBoard extends JComponent {
              */
             @Override
             protected GameStateEnum doInBackground() throws Exception {
-                GameStateEnum gameState;
+                try {
+                    GameStateEnum gameState;
 
 
-                do {
-                    gameState = game.advance();
-                } while (gameState == GameStateEnum.IN_PROGRESS);
+                    do {
+                        gameState = game.advance();
+                    } while (gameState == GameStateEnum.IN_PROGRESS);
 
-                JOptionPane.showMessageDialog(JChessBoard.this, "Game result: " + gameState.name());
+                    JOptionPane.showMessageDialog(JChessBoard.this, "Game result: " + gameState.name());
 
-                return gameState;
+                    return gameState;
+                } catch (Exception e){
+                    System.out.println(e.toString());
+                    System.out.println(e.getMessage());
+
+                }
+                return null;
             }
         };
 
