@@ -7,17 +7,33 @@ import hr.mi.chess.util.BoardFunctions;
 
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Input manager for the <code>ChessGuiApp</code>. Functions as a final state machine. If the user clicks a legal piece
+ * to move, it moves the user into a second state, and then if the user selects a tile to move to (doesn't have to be
+ * legal), it sends the move forward.
+ */
 public class InputManager {
     private final BlockingQueue<FromToPair> blockingQueue;
     private final BoardState boardState;
     private int fromTile;
 
+    /**
+     * The constructor
+     * @param blockingQueue blocking queue to which the moves will be sent
+     * @param boardState the board-state.
+     */
     public InputManager(BlockingQueue<FromToPair> blockingQueue, BoardState boardState) {
         this.blockingQueue = blockingQueue;
         this.boardState = boardState;
         fromTile = -1;
     }
 
+    /**
+     * Works the fsm. If the user clicks a legal piece
+     * to move, it moves the user into a second state, and then if the user selects a tile to move to (doesn't have to be
+     * legal), it sends the move forward
+     * @param tileIndex which tile was pressed
+     */
     public void tileSelected(int tileIndex){
         if (tileIndex < 0 || tileIndex > 63){
             throw new IllegalArgumentException();

@@ -16,10 +16,17 @@ import java.awt.event.WindowEvent;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Swing GUI app for chess, allows for play as either colour, and AI vs AI.
+ */
 public class ChessGuiApp extends JFrame {
 
     private final ChessGame game;
+    private boolean triedToClose = false;
 
+    /**
+     * Constructor, establishes everything necessary for the chess game.
+     */
     public ChessGuiApp() {
         BlockingQueue<FromToPair> blockingQueue = new ArrayBlockingQueue<>(1);
 
@@ -73,7 +80,16 @@ public class ChessGuiApp extends JFrame {
         chessBoard.addListener(inputManager::tileSelected);
     }
 
+    /**
+     * Tries to save the game before closing. If the user tries to close multiple times, app closes.
+     */
     private void close() {
+        if (triedToClose){
+            System.exit(0);
+        }
+
+        triedToClose = true;
+
         if (game.isSaved()){
             System.exit(0);
         }
@@ -83,6 +99,10 @@ public class ChessGuiApp extends JFrame {
 
     }
 
+    /**
+     * Main method for the <code>ChessGuiApp</code>.
+     * @param args args
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new ChessGuiApp().setVisible(true));
     }

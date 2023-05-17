@@ -1,5 +1,6 @@
 package hr.mi.chess.player.human;
 
+import hr.mi.apps.bridges.UserBridge;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
 import hr.mi.chess.movegen.LegalMoveGenerator;

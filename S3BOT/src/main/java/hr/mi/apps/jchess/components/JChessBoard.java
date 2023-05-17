@@ -12,12 +12,21 @@ import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Swing component which acts as a chess board. Encapsulates a chess game and provides a way of communicating with the
+ * game.
+ */
 public class JChessBoard extends JComponent {
 
     private final JChessTile[] tiles;
     private final ChessGame game;
     private final List<TileClickListener> listeners;
 
+    /**
+     * The constructor.
+     * @param game the game which is shown on the Board.
+     * @param flip is the board flipped (for example if the human player is playing black)
+     */
     public JChessBoard(ChessGame game, boolean flip){
         this.tiles = new JChessTile[64];
         this.game = game;
@@ -72,6 +81,11 @@ public class JChessBoard extends JComponent {
 
     }
 
+    /**
+     * Adds a tile at the requested row and column of the board.
+     * @param row the row
+     * @param column the column
+     */
     private void addTile(int row, int column){
         JChessTile tile = new JChessTile(8*row + column);
         tile.setBorder(BorderFactory.createEmptyBorder());
@@ -81,6 +95,9 @@ public class JChessBoard extends JComponent {
         tile.addActionListener(o -> fireListeners(tile.getLERFIndex()));
     }
 
+    /**
+     * Repaints the tiles and the pieces on them to represent the current board state.
+     */
     private void repaintTiles(){
         int moveFrom = -1;
         int moveTo = -1;
@@ -105,10 +122,19 @@ public class JChessBoard extends JComponent {
         }
     }
 
+    /**
+     * Sets the colour of the tile (black or white).
+     * @param tile the tile whose colour is being set
+     */
     private void setTileColour(JChessTile tile){
         setTileColour(tile, false);
     }
 
+    /**
+     * Sets the colour of the tile, and adds an option of tile highlighting.
+     * @param tile the tile whose colour is being set
+     * @param isHighlighted should the tile be highlighted (for example if a piece was moved to/from this tile)
+     */
     private void setTileColour(JChessTile tile, boolean isHighlighted){
         int row = tile.getLERFIndex()/8;
         int column = tile.getLERFIndex()%8;
@@ -119,14 +145,27 @@ public class JChessBoard extends JComponent {
         }
     }
 
+    /**
+     * Activates every subscribed listener that a tile has been clicked
+     * @param tileIndex the LERF index of the tile clicked
+     */
+
     private void fireListeners(int tileIndex){
         listeners.forEach(o -> o.tileClicked(tileIndex));
     }
 
+    /**
+     * Subscribes a listener.
+     * @param listener listener
+     */
     public void addListener(TileClickListener listener){
         listeners.add(listener);
     }
 
+    /**
+     * Unsubscribes a listener
+     * @param listener listener
+     */
     public void removeListener(TileClickListener listener){
         listeners.remove(listener);
     }

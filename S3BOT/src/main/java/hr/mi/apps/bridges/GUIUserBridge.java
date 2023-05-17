@@ -1,15 +1,22 @@
 package hr.mi.apps.bridges;
 
 import hr.mi.support.FromToPair;
-import hr.mi.chess.player.human.UserBridge;
 
 import javax.swing.*;
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * Implementation of the UserBridge for the <code>ChessGuiApp</code>, allows for communication between the
+ * <code>Swing</code> user interface and the chess game.
+ */
 public class GUIUserBridge implements UserBridge {
 
     private final BlockingQueue<FromToPair> blockingQueue;
 
+    /**
+     * The constructor, receives a blocking queue through which it will receive moves from the GUI.
+     * @param blockingQueue input blocking queue
+     */
     public GUIUserBridge(BlockingQueue<FromToPair> blockingQueue) {
         this.blockingQueue = blockingQueue;
     }

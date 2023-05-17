@@ -1,7 +1,6 @@
 package hr.mi.apps.bridges;
 
 import hr.mi.support.FromToPair;
-import hr.mi.chess.player.human.UserBridge;
 import hr.mi.chess.util.ChessTranslator;
 
 import java.util.Scanner;
@@ -31,9 +30,14 @@ public class TerminalUserBridge implements UserBridge {
 
     @Override
     public void stop() {
-
+        //the terminal app is synchronous, so it can be exited safely at any point
     }
 
+    /**
+     * Parses the input string into a <code>FromToPair</code>.
+     * @param input the input string from the terminal app
+     * @return FromToPair
+     */
     private FromToPair parseInput(String input){
         int from;
         int to;

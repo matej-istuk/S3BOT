@@ -1,6 +1,5 @@
 package hr.mi.apps.tchess;
 
-import hr.mi.apps.bridges.TerminalUserBridge;
 import hr.mi.chess.algorithm.support.OpeningBook;
 import hr.mi.chess.constants.ChessConstants;
 import hr.mi.chess.constants.ChessPieceConstants;
@@ -9,21 +8,30 @@ import hr.mi.chess.game.GameStateEnum;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.player.Player;
 import hr.mi.chess.player.ai.PlayerAlan;
-import hr.mi.chess.player.human.HumanPlayer;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Chess app in the terminal. Obsolete by the gui app.
+ */
 public class ChessTerminalApp {
 
     private static final String ROW_SEPARATOR = "+---+---+---+---+---+---+---+---+";
     private static final String FINAL_ROW = "  a   b   c   d   e   f   g   h";
+
+    /**
+     * The constructor, starts the game.
+     */
     public ChessTerminalApp() {
         playGame();
     }
 
+    /**
+     * Establishes everything necessary for the chess game.
+     */
     private static void playGame(){
         Player whitePlayer = new PlayerAlan("baron30.bin", OpeningBook.MOST_COMMON_MOVE, 0);;
         Player blackPlayer = new PlayerAlan("baron30.bin", OpeningBook.MOST_COMMON_MOVE);
@@ -53,12 +61,21 @@ public class ChessTerminalApp {
         }
     }
 
+    /**
+     * Draws the board and other info in a text format from the received board-state.
+     * @param boardState the board-state to be drawn
+     */
     public static void drawGame(BoardState boardState){
         System.out.printf("Currently active player: %s%n", boardState.getActiveColour() == ChessConstants.WHITE ? "white" : "black");
         drawBoard(boardState.getBitboards()).forEach(System.out::println);
         System.out.println();
     }
 
+    /**
+     * Draws the board in a text format from the received board-state.
+     * @param bitboards long[] representing pieces
+     * @return list of strings
+     */
     private static List<String> drawBoard(long[] bitboards){
         char[][] board = getBoard(bitboards);
         List<String> boardVisual = new ArrayList<>();
@@ -103,11 +120,18 @@ public class ChessTerminalApp {
         return charBoard;
     }
 
-    private static void clearScreen() throws IOException, InterruptedException {
+    /**
+     * Clears the screen
+     */
+    private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
+    /**
+     * Main method, starts the program.
+     * @param args args
+     */
     public static void main(String[] args) {
         new ChessTerminalApp();
     }
