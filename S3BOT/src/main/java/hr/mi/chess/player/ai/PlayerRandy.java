@@ -8,16 +8,29 @@ import hr.mi.chess.player.Player;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * "AI" chess player. Plays randomly
+ * @author Matej Istuk
+ */
 public class PlayerRandy implements Player {
     private final Random random;
     private final boolean pretendToThink;
     private boolean isStopped;
 
+    /**
+     * Constructor.
+     * @param seed seed for the random number generator
+     * @param pretendToThink if the player waits a second before returning a move
+     */
     public PlayerRandy(int seed, boolean pretendToThink) {
         this.random = new Random(seed);
         this.pretendToThink = pretendToThink;
     }
 
+    /**
+     * Constructor. Selects random seed
+     * @param pretendToThink if the player waits a second before returning a move
+     */
     public PlayerRandy(boolean pretendToThink){
         this((new Random()).nextInt(), pretendToThink);
     }

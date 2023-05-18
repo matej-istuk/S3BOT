@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Models a chess game with two players.
+ * Models a chess game with two players. Responsible for organizing play             and requesting moves from players.
  * @author Matej Istuk
  */
 public class ChessGame {

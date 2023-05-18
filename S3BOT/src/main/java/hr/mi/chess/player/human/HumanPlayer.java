@@ -10,13 +10,23 @@ import hr.mi.support.FromToPair;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class describing a human chess player. Takes move input through an implementation of <code>UserBridge</code>.
+ * @author Matej Istuk
+ */
 public class HumanPlayer implements Player {
-
     private final UserBridge userBridge;
     private volatile boolean isStopped = false;
+
+    /**
+     * Constructor. Takes in the way through which the user will communicate through the given <code>UserBridge</code>
+     * instance.
+     * @param userBridge implementation of the <code>UserBridge</code> interface
+     */
     public HumanPlayer(UserBridge userBridge) {
         this.userBridge = userBridge;
     }
+
     @Override
     public Move requestMove(BoardState boardState) {
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
@@ -40,6 +50,13 @@ public class HumanPlayer implements Player {
         userBridge.stop();
     }
 
+    /**
+     * Finds the move corresponding to the received move from all legal moves.
+     * @param moves legal moves
+     * @param from from where the user wants to move
+     * @param to to where the user wants to move
+     * @return Move corresponding to the received coordinates, null if none found.
+     */
     private Move findCorrespondingMove (List<Move> moves, int from, int to){
         //a list because pawn promotions will have multiple options
         List<Move> possibleMoves = new ArrayList<>();

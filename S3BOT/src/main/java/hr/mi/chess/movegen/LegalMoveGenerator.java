@@ -13,8 +13,18 @@ import hr.mi.chess.util.BoardFunctions;
 
 import java.util.*;
 
+/**
+ * Move generator for chess. Generates every legal move for a given position. Doesn't take in account draw by repetition
+ * or the 50 move draw rule.
+ * @author Matej Istuk
+ */
 public class LegalMoveGenerator {
 
+    /**
+     * Generates a list of legal moves the active colour can make on the received boardstate.
+     * @param boardState boardstate
+     * @return List of Moves
+     */
     public static List<Move> generateMoves(BoardState boardState) {
         long pushMask = 0xFFFFFFFFFFFFFFFFL;
         long captureMask = 0xFFFFFFFFFFFFFFFFL;
@@ -114,6 +124,15 @@ public class LegalMoveGenerator {
         return moves;
     }
 
+    /**
+     * Generates moves for a specific piece
+     * @param boardState boardstate
+     * @param pieceBitboard bitboard of the specific piece the moves are generated for
+     * @param piece which type of piece is being moved
+     * @param pushMask bitboard of where the piece can potentially push to (mostly all ones, but necessary in case of check)
+     * @param captureMask bitboard of where the piece can capture (mostly all ones, but necessary in case of check)
+     * @return List of legal Moves
+     */
     private static List<Move> generateMovesForPiece(BoardState boardState, long pieceBitboard, ChessPiece piece, long pushMask, long captureMask) {
         List<Move> moves = new ArrayList<>();
         int originOffset = Bitwise.findIndexOfMS1B(pieceBitboard);
@@ -223,6 +242,13 @@ public class LegalMoveGenerator {
         return moves;
     }
 
+    /**
+     * Generates castling moves.
+     * @param boardState boardstate
+     * @param kingDangerSquares bitmap of squares which the king cannot cross
+     * @param occupiedSquares which squares are occupied
+     * @return List of legal castling Moves
+     */
     private static List<Move> generateCastlingMoves (BoardState boardState, long kingDangerSquares, long occupiedSquares){
         List<Move> moves = new ArrayList<>();
 

@@ -4,11 +4,22 @@ import hr.mi.chess.models.ChessPiece;
 
 import java.util.*;
 
+/**
+ * Class encapsulating a small generator of bitmasks for various piece movements.
+ * @author Matej Istuk
+ */
 public class StaticPieceMovesGenerator {
+    /**
+     * Main method
+     * @param args ignored
+     */
     public static void main(String[] args) {
         generateKingMoves();
     }
 
+    /**
+     * Generates knight move bitmask for each square on the board.
+     */
     private static void generateKnightMoves(){
         long[] moves = new long[64];
         for (int i = 0; i < 64; i++){
@@ -67,6 +78,9 @@ public class StaticPieceMovesGenerator {
         Arrays.stream(moves).forEach(o -> System.out.printf("%dL, ", o));
     }
 
+    /**
+     * Generates king move bitmask for each square on the board.
+     */
     private static void generateKingMoves(){
         long[] moves = new long[64];
         for (int i = 0; i < 64; i++){
