@@ -83,13 +83,11 @@ public class GameStateSearch {
                 if ((System.currentTimeMillis() - searchStartTime) > searchEndCondition.getMaxTime() || searchEndCondition.isManualStop()) {
                     break;
                 }
-                /*
                 if (bestMoveCandidate != null) {
                     bestMove = bestMoveCandidate;
                     maxDepth = i;
-                    System.out.printf("TtHit at %d: %d%n", i, ttHit);
+                    //System.out.printf("TtHit at %d: %d%n", i, ttHit);
                 }
-                 */
             }
             System.out.println(System.currentTimeMillis() - searchStartTime + " " + maxDepth + " " + boardState.getFEN());
             return bestMove;
