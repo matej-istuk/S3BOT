@@ -4,6 +4,12 @@ import hr.mi.apps.uci.commands.support.UciTask;
 import hr.mi.apps.uci.support.Environment;
 import hr.mi.chess.util.ChessTranslator;
 
+/**
+ * position [fen  | startpos ]  moves  ....
+ * Sets up the position described in fenstring on the internal board and
+ * play the moves on the internal chess board.
+ * @author Matej Istuk
+ */
 public class PositionFunc extends UciTask {
 
     public PositionFunc(String[] arguments, Environment environment) {

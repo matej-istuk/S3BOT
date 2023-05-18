@@ -5,6 +5,10 @@ import hr.mi.chess.models.ChessPiece;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class of constants related to the chess pieces.
+ * @author Matej Istuk
+ */
 public class ChessPieceConstants {
     /*
     Legend:

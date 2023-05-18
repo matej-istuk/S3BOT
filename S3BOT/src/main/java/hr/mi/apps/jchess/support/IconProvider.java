@@ -1,4 +1,4 @@
-package hr.mi.apps.jchess.util;
+package hr.mi.apps.jchess.support;
 
 import hr.mi.chess.models.ChessPiece;
 
@@ -7,6 +7,10 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Singleton class providing piece icons for the <code>ChessGuiApp</code>.
+ * @author Matej Istuk
+ */
 public class IconProvider {
     private final Image whitePawnIcon;
     private final Image whiteRookIcon;
@@ -23,10 +27,18 @@ public class IconProvider {
 
 
     private static final IconProvider instance = new IconProvider();
+
+    /**
+     * Returns the only instance of the icon provider.
+     * @return instance of the icon provider
+     */
     public static IconProvider getInstance(){
         return instance;
     }
 
+    /**
+     * The constructor.
+     */
     private IconProvider(){
         try {
             whitePawnIcon = ImageIO.read(Objects.requireNonNull(this.getClass().getClassLoader().getResource("ChessPieceIcons/Standard/WhitePawn.png")));
@@ -46,6 +58,11 @@ public class IconProvider {
         }
     }
 
+    /**
+     * Returns the image for the requested piece.
+     * @param piece requested piece
+     * @return image of the requested piece
+     */
     public Image getPieceIcon(ChessPiece piece) {
 
         return switch (piece) {

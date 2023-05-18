@@ -16,5 +16,9 @@ public interface EvaluationFunction {
      */
     int evaluate(BoardState boardState);
 
+    /**
+     * Sets the perspective from which the board will be evaluated for the evaluation function.
+     * @param perspective chess colour
+     */
     void setPerspective(boolean perspective);
 }

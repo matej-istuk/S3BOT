@@ -3,17 +3,15 @@ package hr.mi.chess.evaluation;
 import hr.mi.chess.constants.ChessConstants;
 import hr.mi.chess.models.BoardState;
 
+/**
+ * Very simple evaluation function, only takes in material value of each side.
+ * @author Matej Istuk
+ */
 public class SimpleEvaluationFunction implements EvaluationFunction{
 
     private boolean perspective;
     private static final int[] pieceValues = {1, 3, 3, 5, 9, 0};
 
-    /**
-     * Evaluates the given board-state, returning its "goodness"
-     *
-     * @param boardState the board-state to be evaluates
-     * @return a double representing the absolute "goodness" of the board-state
-     */
     @Override
     public int evaluate(BoardState boardState) {
         return (perspective == ChessConstants.WHITE ? 1 : -1) * (calculateBoardValueByColour(boardState.getBitboards(), ChessConstants.WHITE)
@@ -25,6 +23,12 @@ public class SimpleEvaluationFunction implements EvaluationFunction{
         this.perspective = perspective;
     }
 
+    /**
+     * Calculates the value of the board for the received colour
+     * @param bitboards bitboards of the boardstate
+     * @param colour colour which is being scored
+     * @return material value of the colour
+     */
     private int calculateBoardValueByColour(long[] bitboards, boolean colour){
         int offset = colour == ChessConstants.WHITE ? 0 : 6;
         int res = 0;

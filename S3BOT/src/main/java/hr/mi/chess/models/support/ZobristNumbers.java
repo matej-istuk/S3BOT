@@ -2,6 +2,10 @@ package hr.mi.chess.models.support;
 
 import java.util.Random;
 
+/**
+ * Class containing random numbers for calculates the zobrist hash of a boardstate.
+ * @author Matej Istuk
+ */
 public class ZobristNumbers {
     private static final long[] zobristNumbers =
             {
@@ -206,6 +210,10 @@ public class ZobristNumbers {
     //polyglot bijection
     private static final int[] pieceBijection = {1, 7, 3, 5, 9, 11, 0, 6, 2, 4, 8, 10};
 
+    /**
+     * Generates a list of random numbers.
+     * @return long[] of length 781
+     */
     private static long[] generateZobristNumbers() {
         Random rand = new Random(36535040);
         long[] zobristNumbers = new long[12*64 + 4 + 8 + 1]; //each piece on each square + castling + en passant + is black active

@@ -3,6 +3,10 @@ package hr.mi.apps.uci.commands;
 import hr.mi.apps.uci.commands.support.UciTask;
 import hr.mi.apps.uci.support.Environment;
 
+/**
+ * Command for stopping calculation as soon as possible.
+ * @author Matej Istuk
+ */
 public class StopFunc extends UciTask {
 
     public StopFunc(String[] arguments, Environment environment) {
@@ -11,6 +15,7 @@ public class StopFunc extends UciTask {
 
     @Override
     public String[] call() throws Exception {
-        return new String[] {"Stop not implemented yet"};
+        environment.getSearchManager().stopSearch();
+        return new String[0];
     }
 }

@@ -6,7 +6,19 @@ import hr.mi.chess.movegen.LegalMoveGenerator;
 
 import java.util.List;
 
+/**
+ * Class preforming performance test, move path enumeration. Used for debugging the move generator, counts possible
+ * chess board states.
+ * @author Matej Istuk
+ */
 public class Perft {
+
+    /**
+     * Searches the game tree fully to the requested depth and returns how many states it found.
+     * @param boardState the boardstate
+     * @param depth depth to which to search
+     * @return number of found states
+     */
     public static long countMovesAtDepth(BoardState boardState, int depth){
         List<Move> moves = LegalMoveGenerator.generateMoves(boardState);
 

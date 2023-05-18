@@ -9,6 +9,11 @@ import hr.mi.chess.models.Move;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The search manager for a <code>GameStateSearch</code> object. Provides various ways to stop the search at a desired
+ * point.
+ * @author Matej Istuk
+ */
 public class SearchManager {
     private GameStateSearch gameStateSearch;
     private List<Move> searchMoves = new LinkedList<>();
@@ -25,24 +30,46 @@ public class SearchManager {
     private boolean infinite;
     private final SearchEndCondition searchEndCondition;
 
+    /**
+     * The constructor. Initializes a new <code>GameStateSearch</code>.
+     */
     public SearchManager() {
         this.gameStateSearch = new GameStateSearch(new SimplePlusEvaluationFunction());
         this.searchEndCondition = new SearchEndCondition();
     }
 
+    /**
+     * Finds the best move for the received <code>BoardState</code>.
+     * @param boardState the boardstate on which the search will be preformed.
+     * @return found best move
+     */
     public Move findBestMove(BoardState boardState) {
         setSearchEndCondition();
         return gameStateSearch.getBestMove(boardState, searchEndCondition);
     }
 
+    /**
+     * Manually stops the search.
+     */
+    public void stopSearch() {
+        searchEndCondition.setManualStop(true);
+    }
+
+    /**
+     * Resets the manual stop.
+     */
+    public void resetStop() {
+        searchEndCondition.setManualStop(false);
+    }
+
+    /**
+     * Sets the <code>SearchEndCondition</code> object to the set options. Only supports max depth, max nodes and
+     * max time.
+     */
     private void setSearchEndCondition() {
         searchEndCondition.setMaxDepth(depth);
         searchEndCondition.setMaxNodes(nodes);
         searchEndCondition.setMaxTime(moveTime);
-    }
-
-    private void stopSearch() {
-        searchEndCondition.setManualStop(true);
     }
 
     public void setSearchMoves(List<Move> searchMoves) {

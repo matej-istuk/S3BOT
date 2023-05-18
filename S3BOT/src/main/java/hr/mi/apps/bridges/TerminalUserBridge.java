@@ -5,6 +5,10 @@ import hr.mi.chess.util.ChessTranslator;
 
 import java.util.Scanner;
 
+/**
+ * User bridge for the terminal chess application.
+ * @author Matej Istuk
+ */
 public class TerminalUserBridge implements UserBridge {
 
     @Override

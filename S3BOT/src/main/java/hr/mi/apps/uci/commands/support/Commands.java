@@ -1,5 +1,9 @@
 package hr.mi.apps.uci.commands.support;
 
+/**
+ * Enum containing all commands for the UCI protocol. Its only parameter is the command text.
+ * @author Matej Istuk
+ */
 public enum Commands {
     UCI("uci"),
     DEBUG("debug"),

@@ -215,6 +215,10 @@ public class BoardState {
         calculateZobrist();
     }
 
+    /**
+     * Returns the FEN string representation of the current <code>BoardState</code>
+     * @return string in the FEN format
+     */
     public String getFEN() {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -307,9 +311,12 @@ public class BoardState {
             Map.entry(45, 343597383680L),
             Map.entry(46, 687194767360L),
             Map.entry(47, 274877906944L)
-
     );
 
+    /**
+     * Checks if there is no pawn to capture en passant.
+     * @return true if there is no pawn, false if there is
+     */
     private boolean noEpCapture() {
         if (enPassantTarget == -1){
             return true;
@@ -318,9 +325,13 @@ public class BoardState {
         return (cPawnBitboard & epMasks.get(enPassantTarget)) == 0;
     }
 
+    /**
+     * Loads the starting position.
+     */
     public void loadStartingPosition(){
         loadFen(ChessBoardConstants.STARTING_POSITION_FEN);
     }
+
     /**
      * This move method does not check the legality of the moves, it just executes them, so it should only be used by
      * something that checks the move legality beforehand
@@ -655,6 +666,10 @@ public class BoardState {
         addToRepetition();
     }
 
+    /**
+     * Makes a move denoted by the received string in algebraic notation
+     * @param moveString string representation of a move (for example e2e3)
+     */
     public void makeMove(String moveString) {
         List<Move> moves = LegalMoveGenerator.generateMoves(this);
 
@@ -668,6 +683,10 @@ public class BoardState {
         }
     }
 
+    /**
+     * Preforms all received moves represented in algebraic notation
+     * @param moveStrings String... of moves
+     */
     public void makeMoves (String... moveStrings) {
         for (String move: moveStrings){
             makeMove(move);
@@ -787,6 +806,9 @@ public class BoardState {
             zobristHash ^= ZobristNumbers.getCastling(3);
     }
 
+    /**
+     * Increments the repetition counter of the current boardstate in the repetition map.
+     */
     private void addToRepetition(){
         if (!repetitionMap.containsKey(this.zobristHash)){
             repetitionMap.put(this.zobristHash, 0);
@@ -795,6 +817,9 @@ public class BoardState {
         repetitionMap.put(zobristHash, repetitionMap.get(zobristHash) + 1);
     }
 
+    /**
+     * Decrements the repetition counter of the current boardstate in the repetition map.
+     */
     private void removeFromRepetition(){
         if (!repetitionMap.containsKey(this.zobristHash) || repetitionMap.get(zobristHash) == 0){
             System.out.printf("%s wasn't in the repetition map", this.getFEN());
@@ -809,6 +834,10 @@ public class BoardState {
         repetitionMap.put(zobristHash, repetitionMap.get(zobristHash) - 1);
     }
 
+    /**
+     * Checks for draw by the repetition and 50 move rules.
+     * @return Returns true if the current position is a draw by the aforementioned rules, otherwise false
+     */
     public boolean isDraw() {
         if (repetitionMap.containsKey(zobristHash) && repetitionMap.get(zobristHash) >= 3) {
             return true;
@@ -820,21 +849,38 @@ public class BoardState {
 
         return false;
     }
+
+    /**
+     * Adds the piece to the bitboard. Adjusts the zobrist hash
+     * @param piece piece to be added
+     * @param squareIndex square to which the piece will be added to
+     */
     private void bitboardsAddPiece(int piece, int squareIndex) {
         bitboards[piece] = bitboards[piece] | (1L << squareIndex);
         zobristHash ^= ZobristNumbers.getPieceOnTile(piece, squareIndex);
 
     }
 
+    /**
+     * Removes the piece from the bitboard. Adjusts the zobrist hash
+     * @param piece piece to be removed
+     * @param squareIndex square to which the piece will be removed from
+     */
     private void bitboardsRemovePiece(int piece, int squareIndex) {
         bitboards[piece] = bitboards[piece] & ~(1L << squareIndex);
         zobristHash ^= ZobristNumbers.getPieceOnTile(piece, squareIndex);
     }
 
+    /**
+     * @return index of the tile to which the last moved piece was moved to
+     */
     public int getLastMovedPieceIndex() {
         return lastMovedPieceIndex;
     }
 
+    /**
+     * Calculates and sets the zobrist hash from scratch
+     */
     private void calculateZobrist(){
         zobristHash = 0;
         for (int i = 0; i < bitboards.length; i++)

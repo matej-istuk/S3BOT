@@ -3,7 +3,8 @@ package hr.mi.apps.bridges;
 import hr.mi.support.FromToPair;
 
 /**
- * Interface which describes a way for an input method to communicate with a chess game
+ * Interface which describes a way for an input method to communicate with a chess game.
+ * @author Matej Istuk
  */
 public interface UserBridge {
     /**

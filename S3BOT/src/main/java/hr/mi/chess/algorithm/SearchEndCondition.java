@@ -1,5 +1,9 @@
 package hr.mi.chess.algorithm;
 
+/**
+ * Class modelling a condition for search end, holds various limits.
+ * @author Matej Istuk
+ */
 public class SearchEndCondition {
     private long maxTime = Long.MAX_VALUE;
     private int maxDepth = Integer.MAX_VALUE;

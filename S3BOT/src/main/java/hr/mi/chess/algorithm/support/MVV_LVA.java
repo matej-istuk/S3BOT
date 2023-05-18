@@ -1,15 +1,11 @@
 package hr.mi.chess.algorithm.support;
 
+/**
+ * Class containing information about the Most Valuable Victim - Least Valuable Attacker system for move ordering.
+ * <a href="https://www.chessprogramming.org/MVV-LVA">Link to wiki</a>
+ * @author Matej Istuk
+ */
 public class MVV_LVA {
-
-    private final int[] pieceValues = {
-            100,
-            500,
-            320,
-            330,
-            900,
-            200000
-    };
 
     /**
      * indexed by [victim][attacker]

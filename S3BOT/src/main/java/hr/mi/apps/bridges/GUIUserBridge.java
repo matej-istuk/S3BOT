@@ -8,6 +8,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Implementation of the UserBridge for the <code>ChessGuiApp</code>, allows for communication between the
  * <code>Swing</code> user interface and the chess game.
+ * @author Matej Istuk
  */
 public class GUIUserBridge implements UserBridge {
 

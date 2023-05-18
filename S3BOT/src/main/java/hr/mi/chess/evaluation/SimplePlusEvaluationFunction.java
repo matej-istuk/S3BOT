@@ -10,6 +10,9 @@ import hr.mi.chess.util.BoardFunctions;
  * Improvement upon the <code>SimpleEvaluationFunction</code>.
  * Source:
  * <a href="https://www.chessprogramming.org/Simplified_Evaluation_Function">link</a>
+ * Takes in both the amount of material and piece position into account. Major flaw is not accounting for king safety
+ * enough.
+ * @author Matej Istuk
  */
 public class SimplePlusEvaluationFunction implements EvaluationFunction{
 
@@ -159,12 +162,6 @@ public class SimplePlusEvaluationFunction implements EvaluationFunction{
 
     };
 
-    /**
-     * Evaluates the given board-state, returning its "goodness"
-     *
-     * @param boardState the board-state to be evaluates
-     * @return a double representing the absolute "goodness" of the board-state
-     */
     @Override
     public int evaluate(BoardState boardState) {
         return (perspective == ChessConstants.WHITE ? 1 : -1) * (calculateValueByColour(boardState, ChessConstants.WHITE) -
@@ -176,6 +173,12 @@ public class SimplePlusEvaluationFunction implements EvaluationFunction{
         this.perspective = perspective;
     }
 
+    /**
+     * Calculates the value of the board for the received colour
+     * @param boardState boardstate being evaluated
+     * @param colour colour which is being scored
+     * @return material value of the colour
+     */
     private int calculateValueByColour(BoardState boardState, boolean colour){
         int result = 0;
         int offset = colour == ChessConstants.WHITE ? 0 : 6;

@@ -11,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
  * Input manager for the <code>ChessGuiApp</code>. Functions as a final state machine. If the user clicks a legal piece
  * to move, it moves the user into a second state, and then if the user selects a tile to move to (doesn't have to be
  * legal), it sends the move forward.
+ * @author Matej Istuk
  */
 public class InputManager {
     private final BlockingQueue<FromToPair> blockingQueue;

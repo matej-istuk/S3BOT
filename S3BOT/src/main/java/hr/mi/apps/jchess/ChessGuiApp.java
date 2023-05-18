@@ -18,6 +18,7 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  * Swing GUI app for chess, allows for play as either colour, and AI vs AI.
+ * @author Matej Istuk
  */
 public class ChessGuiApp extends JFrame {
 

@@ -4,7 +4,6 @@ import hr.mi.chess.util.ChessTranslator;
 
 /**
  * Represents a chess move
- *
  * @author Matej Istuk
  */
 public class Move {

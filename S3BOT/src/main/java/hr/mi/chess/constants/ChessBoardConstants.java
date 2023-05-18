@@ -5,6 +5,10 @@ import hr.mi.chess.models.ChessPiece;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class of constants related to the chess board itself.
+ * @author Matej Istuk
+ */
 public class ChessBoardConstants {
 
     public static final long FILE_A = 0x0101010101010101L;

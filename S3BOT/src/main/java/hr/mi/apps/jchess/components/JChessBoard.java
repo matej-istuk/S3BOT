@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Swing component which acts as a chess board. Encapsulates a chess game and provides a way of communicating with the
  * game.
+ * @author Matej Istuk
  */
 public class JChessBoard extends JComponent {
 

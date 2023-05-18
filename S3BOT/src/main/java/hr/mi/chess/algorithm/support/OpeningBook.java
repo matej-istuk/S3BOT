@@ -3,7 +3,6 @@ package hr.mi.chess.algorithm.support;
 import hr.mi.chess.models.BoardState;
 import hr.mi.chess.models.Move;
 import hr.mi.chess.util.ChessTranslator;
-import hr.mi.support.FromToPair;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -11,6 +10,11 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Class acting as an opening book for chess. It can load any opening book in the <a href="https://www.chessprogramming.org/PolyGlot">Polyglot</a>
+ * format, and can be adjusted with various ways of choosing moves from the book.
+ * @author Matej Istuk
+ */
 public class OpeningBook {
 
     public static final int MOST_COMMON_MOVE = 1;
@@ -22,6 +26,13 @@ public class OpeningBook {
 
     private final Function<List<Entry>, Short> moveChooser;
 
+    /**
+     * The constructor, loads the file with the received openingBookName name from the OpeningBooks folder and sets the
+     * chosen move decision style.
+     * @param openingBookName name of the opening book file
+     * @param decisionStyle decision style, defined by the following public class variables: MOST_COMMON_MOVE,
+     *                      WEIGHTED_RANDOM_MOVE, TRUE_RANDOM_MOVE, LEAST_COMMON_MOVE
+     */
     public OpeningBook(String openingBookName, int decisionStyle) {
         moveMap = loadOpeningBook(openingBookName);
         moveChooser = switch (decisionStyle) {
@@ -33,6 +44,11 @@ public class OpeningBook {
         };
     }
 
+    /**
+     * Loads the opening book from the file located in the OpeningBooks folder.
+     * @param openingBookName name of the opening book file
+     * @return opening book as a <code>Map<Long, List<Entry>></code>
+     */
     private Map<Long, List<Entry>> loadOpeningBook(String openingBookName) {
         Map<Long, List<Entry>> moveMap = new HashMap<>();
         try (DataInputStream dataInputStream = new DataInputStream(Files.newInputStream(Path.of(this.getClass().getClassLoader().getResource("OpeningBooks/" + openingBookName).getPath())))){
@@ -51,6 +67,11 @@ public class OpeningBook {
         return moveMap;
     }
 
+    /**
+     * Returns an opening book move for the received position (chosen by the predefined strategy)
+     * @param boardState boardstate for which the move is requested
+     * @return chosen move
+     */
     public Move getOpeningBookMove(BoardState boardState){
         if (!moveMap.containsKey(boardState.getZobristHash())) {
             return null;
@@ -62,6 +83,11 @@ public class OpeningBook {
         }
     }
 
+    /**
+     * Turns the polyglot move encoding into the algebraic notation (for example e4e5 a7a8q...).
+     * @param code polyglot move code
+     * @return algebraic notation
+     */
     private static String codeToAlgebraic(short code){
         String from = coordinatesToAlgebraicPos((code >>> 6) & 0b111, (code >>> 9) & 0b111);
         String to = coordinatesToAlgebraicPos(code & 0b111, (code >>> 3) & 0b111);
@@ -77,15 +103,34 @@ public class OpeningBook {
         return from + to + promotion;
     }
 
+    /**
+     * Chess board coordinates to algebraic position ((0,0) is a1)
+     * @param file int between 0 and 7 (inclusive)
+     * @param row int between 0 and 7 (inclusive)
+     * @return Algebraic position string
+     */
     private static String coordinatesToAlgebraicPos(int file, int row) {
         return ChessTranslator.LERFToAlgebraicPos(8*row+file);
     }
 
     private static final Random random = new Random();
 
-    private static record Entry (short move, short weight, int learn) {}
+    /**
+     * Record for the opening book map.
+     * @param move Polyglot encoding (as a short) for the move
+     * @param weight measure of the move quality (bigger is better)
+     * @param learn unused, see <a href="http://hgm.nubati.net/book_format.html">more</a>
+     */
+    private record Entry (short move, short weight, int learn) {}
 
+    /**
+     * Strategy for selecting the most common opening move from the received ones
+     */
     private static final Function<List<Entry>, Short> MOST_COMMON_MOVE_STRATEGY = entries -> entries.stream().max(Comparator.comparingInt(Entry::weight)).orElseThrow().move();
+
+    /**
+     * Strategy for selecting a random (weighted by quality) move from the received ones
+     */
     private static final Function<List<Entry>, Short> WEIGHTED_RANDOM_MOVE_STRATEGY = entries -> {
         int chosenWeight = random.nextInt(entries.stream().mapToInt(Entry::weight).sum());
         int weightSum = 0;
@@ -97,8 +142,14 @@ public class OpeningBook {
         }
         throw new RuntimeException();
     };
+
+    /**
+     * Strategy for selecting a random (unweighted) move from the received ones
+     */
     private static final Function<List<Entry>, Short> TRUE_RANDOM_MOVE_STRATEGY = entries -> entries.get(random.nextInt(entries.size())).move();
+
+    /**
+     * Strategy for selecting the least common opening move from the received ones
+     */
     private static final Function<List<Entry>, Short> LEAST_COMMON_MOVE_STRATEGY = entries -> entries.stream().min(Comparator.comparingInt(Entry::weight)).orElseThrow().move();
-
-
 }

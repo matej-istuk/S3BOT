@@ -1,14 +1,14 @@
 package hr.mi.apps.jchess.components;
 
-import hr.mi.apps.jchess.util.IconProvider;
+import hr.mi.apps.jchess.support.IconProvider;
 import hr.mi.chess.models.ChessPiece;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 /**
  * Chessboard tile, extends a button so that the user can click it to move pieces. Can draw a piece on itself.
+ * @author Matej Istuk
  */
 public class JChessTile extends JButton {
     private final int LERFIndex;

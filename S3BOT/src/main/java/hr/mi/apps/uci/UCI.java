@@ -13,6 +13,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
+/**
+ * UCI terminal app as described by the <a href="https://www.wbec-ridderkerk.nl/html/UCIProtocol.html">UCI protocol</a>.
+ * Works with three threads, one for input, one for task execution and one for output.
+ * @author Matej Istuk
+ */
 public class UCI {
     private static final Environment environment = new Environment();
     static final Map<String, BiFunction<String[], Environment, UciTask>> commandMap = Map.ofEntries(
@@ -33,6 +38,10 @@ public class UCI {
     static BlockingQueue<String> outputQueue = new LinkedBlockingQueue<>();
     static private boolean isOn = true;
 
+    /**
+     * Main function for the UCI app. Accepts text commands and queues them up.
+     * @param args ignored
+     */
     public static void main(String[] args) {
         System.out.println("S3BOT by Matej Istuk");
         new Thread(new OutputWriter()).start();
@@ -52,6 +61,10 @@ public class UCI {
         } while (!command.equals("quit"));
     }
 
+    /**
+     * Executes a single <code>UciTask</code> and puts the output in the output queue.
+     * @param task UciTask
+     */
     private static void executeTask(UciTask task) {
         try {
             String[] output = task.call();
@@ -74,6 +87,11 @@ public class UCI {
         }
     }
 
+    /**
+     * Parses the GUI command and puts the task in the work queue
+     * @param command command string
+     * @param arguments command arguments
+     */
     private static void parseGUICommand(String command, String[] arguments) {
         if (command.equals("quit")){
             isOn = false;
@@ -104,8 +122,14 @@ public class UCI {
         }
     }
 
+    /**
+     * Runnable class which preforms the tasks. Designed to be asynchronous
+     */
     private static class EngineLoop implements Runnable {
 
+        /**
+         * Works the work queue.
+         */
         @Override
         public void run() {
             while (isOn || !workQueue.isEmpty()) {
@@ -124,8 +148,14 @@ public class UCI {
         }
     }
 
+    /**
+     * Runnable class which parses the input. Designed to be asynchronous
+     */
     private static class InputParser implements Runnable {
 
+        /**
+         * Parses the commands from the input queue.
+         */
         @Override
         public void run() {
             while (isOn) {

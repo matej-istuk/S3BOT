@@ -1,7 +1,8 @@
 package hr.mi.apps.jchess.components;
 
 /**
- * Listener
+ * Listener.
+ * @author Matej Istuk
  */
 @FunctionalInterface
 public interface TileClickListener {

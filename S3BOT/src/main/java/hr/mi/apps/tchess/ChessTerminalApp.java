@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * Chess app in the terminal. Obsolete by the gui app.
+ * @author Matej Istuk
  */
 public class ChessTerminalApp {
 
