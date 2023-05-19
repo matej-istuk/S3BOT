@@ -15,8 +15,8 @@ You can play chess against my AI in three ways: 
 
 I plan on mainly improving the evaluation function of the engine.
 
-I'm still working on some of the finishing touches (and there may be some bugs lurking), 
-so the GitHub repo isn't public yet. Soon :).
+I'm still working on some of the finishing touches (and there may be some bugs lurking).
+
 
 P.S.
  As a quick demonstration, below is a PGN (portable game notation) of a game S3BOT played against a decent chess player. 
