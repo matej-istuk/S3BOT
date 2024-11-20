@@ -7,6 +7,7 @@ import hr.mi.chess.util.ChessTranslator;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 
@@ -51,7 +52,7 @@ public class OpeningBook {
      */
     private Map<Long, List<Entry>> loadOpeningBook(String openingBookName) {
         Map<Long, List<Entry>> moveMap = new HashMap<>();
-        try (DataInputStream dataInputStream = new DataInputStream(Files.newInputStream(Path.of(this.getClass().getClassLoader().getResource("OpeningBooks/" + openingBookName).getPath())))){
+        try (DataInputStream dataInputStream = new DataInputStream(Files.newInputStream(Path.of(this.getClass().getClassLoader().getResource(Paths.get("OpeningBooks", openingBookName).toString()).getPath())))){
             long key;
             while (dataInputStream.available() > 0){
                 key = dataInputStream.readLong();
